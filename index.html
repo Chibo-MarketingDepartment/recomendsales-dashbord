@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>季節メニュー販売数レポート｜千房グループ</title>
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XPZJL7GN67"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XPZJL7GN67');
+</script>
+<style>
+
+:root{--navy:#1A2433;--cream:#FDF6EC;--sp:#E8845A;--sp2:#FEF3E8;--sp3:#F9C9A0;--spd:#C85A30;
+  --green:#00A870;--g2:#E6F7F0;--g3:#B3E8D4;--blue:#0073C4;--bl2:#EEF4FB;
+  --red:#E04040;--r2:#FDEAEA;--r3:#F4B4B4;--g1:#DDE2EA;--gg2:#8A9AB0;--gg3:#B0BBC8;--sb:210px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:13px;}
+body{font-family:'Meiryo UI','メイリオ',sans-serif;background:var(--cream);color:var(--navy);min-height:100vh;display:flex;flex-direction:column;}
+.hdr{background:var(--navy);height:52px;display:flex;align-items:center;padding:0 16px;gap:12px;position:sticky;top:0;z-index:300;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+
+.hdr-sep{width:1px;height:26px;background:rgba(255,255,255,.2);}
+.hdr-ttl{font-size:14px;font-weight:700;color:#fff;}
+.hdr-r{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.hdr-kpi{font-size:10px;color:var(--gg3);background:rgba(255,255,255,.1);padding:3px 8px;border-radius:3px;}
+.hdr-p{font-size:10px;color:var(--gg3);}
+.layout{display:flex;flex:1;}
+.sb{width:var(--sb);background:#fff;border-right:1px solid var(--g1);padding:12px 10px;position:sticky;top:52px;height:calc(100vh - 52px);overflow-y:auto;flex-shrink:0;}
+.sb-sec{margin-bottom:14px;}
+.sb-ttl{font-size:9px;font-weight:700;color:var(--gg2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--g1);}
+.sb-btn{display:block;width:100%;text-align:left;padding:5px 8px;margin-bottom:3px;border-radius:5px;border:1px solid var(--g1);background:#fff;font-family:inherit;font-size:11px;font-weight:700;color:var(--gg2);cursor:pointer;transition:all .15s;}
+.sb-btn:hover{border-color:var(--sp);color:var(--sp);}
+.sb-btn.a{background:var(--sp);color:#fff;border-color:var(--sp);}
+.sb-btn.a2{background:var(--navy);color:#fff;border-color:var(--navy);}
+.main{flex:1;padding:14px 16px;min-width:0;}
+#ld{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 120px);gap:12px;}
+.spin{width:34px;height:34px;border:3px solid var(--g1);border-top-color:var(--sp);border-radius:50%;animation:sp .8s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+#nodata{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 120px);padding:24px;}
+.nodatabox{border:2px dashed var(--sp3);border-radius:12px;background:var(--sp2);padding:40px 32px;text-align:center;max-width:500px;}
+#db{display:none;}
+/* ドリルダウン */
+.dd-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;}
+.dd-ov.s{display:flex;}
+.dd-modal{background:#fff;border-radius:10px;width:90%;max-width:700px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.25);}
+.dd-hdr{background:var(--navy);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px;}
+.dd-ttl{font-size:13px;font-weight:700;flex:1;}
+.dd-x{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;line-height:1;}
+.dd-body{padding:14px;overflow-y:auto;}
+.dd-tbl-h{display:grid;align-items:center;background:var(--navy);padding:5px 8px;border-radius:4px 4px 0 0;gap:4px;}
+.dd-row{display:grid;align-items:center;gap:4px;padding:5px 0;border-bottom:1px solid #F0F2F5;}
+.dd-row:last-child{border-bottom:none;}
+.dd-row:nth-child(even){background:#FAFBFC;}
+.dd-nm{font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dd-bw{position:relative;}
+.dd-bt{height:8px;background:#EEF0F4;border-radius:2px;}
+.dd-bf{height:8px;border-radius:2px;}
+.dd-kl{position:absolute;top:0;bottom:0;width:0;border-left:1.5px dashed var(--red);}
+.dd-rv{font-size:10px;font-weight:700;text-align:right;}
+.dd-sv{font-size:8px;color:var(--gg3);text-align:right;}
+/* タブ */
+.tab-bar{display:flex;border-bottom:2px solid var(--g1);margin-bottom:12px;}
+.tab{font-size:11px;font-weight:700;padding:7px 13px;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;color:var(--gg2);}
+.tab:hover{color:var(--navy);}
+.tab.a{color:var(--sp);border-bottom-color:var(--sp);}
+.card{background:#fff;border:1px solid var(--g1);border-radius:7px;box-shadow:0 1px 5px rgba(0,0,0,.05);overflow:hidden;}
+.slbl{font-size:9px;font-weight:700;color:var(--gg2);letter-spacing:.09em;text-transform:uppercase;margin-bottom:6px;}
+.kg{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:12px;}
+.kc{background:#fff;border:1px solid var(--g1);border-radius:7px;box-shadow:0 1px 5px rgba(0,0,0,.05);padding:11px 13px;display:flex;flex-direction:column;gap:3px;}
+.kc.km{border-top:5px solid var(--sp);background:linear-gradient(135deg,#fff 60%,var(--sp2));}
+.kl{font-size:9px;font-weight:700;color:var(--gg2);}
+.kb{font-size:44px;font-weight:900;line-height:1;color:var(--sp);}
+.kb .ku{font-size:17px;font-weight:400;color:var(--gg2);}
+.kv{font-size:24px;font-weight:900;line-height:1.1;}
+.ku2{font-size:10px;color:var(--gg2);}
+.kn{font-size:9px;color:var(--gg3);margin-top:1px;}
+.bgs{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;}
+.bg{font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;border:1px solid transparent;}
+.bok{background:var(--g2);border-color:var(--g3);color:var(--green);}
+.bng{background:var(--r2);border-color:var(--r3);color:var(--red);}
+.bif{background:var(--bl2);border-color:#C8D8F0;color:var(--blue);}
+.agr{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:4px;}
+.ab{border-radius:4px;padding:5px;text-align:center;}
+.aok{background:var(--g2);border:1px solid var(--g3);}
+.ang{background:var(--r2);border:1px solid var(--r3);}
+.an{font-size:26px;font-weight:900;line-height:1;}
+.aok .an{color:var(--green);}
+.ang .an{color:var(--red);}
+.al{font-size:9px;font-weight:700;margin-top:1px;}
+.aok .al{color:var(--green);}
+.ang .al{color:var(--red);}
+.fb{background:var(--sp2);border:1px solid var(--sp3);border-radius:5px;padding:5px 10px;margin-bottom:9px;font-size:10px;font-weight:700;color:var(--spd);display:none;align-items:center;gap:6px;}
+.fb.s{display:flex;}
+.fc{cursor:pointer;font-size:9px;color:var(--sp);text-decoration:underline;margin-left:auto;}
+/* ランキング */
+.rk-h,.rk-r{display:grid;grid-template-columns:21px minmax(0,1fr) 38px 38px 42px minmax(80px,1fr) 54px 38px;gap:3px;align-items:center;}
+.rk-h{background:var(--navy);padding:5px 9px;}
+.rk-h span{font-size:9px;font-weight:700;color:#fff;white-space:nowrap;}
+.rk-r{padding:2px 9px;min-height:24px;border-bottom:1px solid #F0F2F5;}
+.rk-r:last-child{border-bottom:none;}
+.rk-r:nth-child(even){background:#FAFBFC;}
+.rk-r:hover{background:var(--sp2);}
+.tc{text-align:center;}.tr{text-align:right;}
+.rn{width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;}
+.rg{background:#D4A017;color:#fff;}.rs{background:#A8A9AD;color:#fff;}.rb{background:#C87941;color:#fff;}.rp{background:#EEF0F4;color:var(--gg2);}
+.sn{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;color:var(--blue);text-decoration:underline;}
+.sn:hover{color:var(--spd);}
+.bw{position:relative;}
+.bt{height:8px;background:#EEF0F4;border-radius:2px;}
+.bf{height:8px;border-radius:2px;}
+.kln{position:absolute;top:0;bottom:0;width:0;border-left:1.5px dashed var(--red);pointer-events:none;}
+.rv{font-size:10px;font-weight:700;text-align:right;}
+.jv{font-size:8px;font-weight:700;text-align:center;}
+.oc{color:var(--green);}.nc{color:var(--red);}
+.bt2{font-size:8px;color:var(--gg2);text-align:center;}
+.bgr{display:grid;grid-template-columns:1fr 330px;gap:11px;margin-bottom:11px;}
+/* メニュー */
+.mn-h,.mn-r{display:grid;grid-template-columns:17px minmax(0,1fr) 55px minmax(60px,1fr) 44px;gap:4px;align-items:center;}
+.mn-h{background:var(--navy);padding:5px 10px;}
+.mn-h span{font-size:9px;font-weight:700;color:#fff;}
+.mn-r{padding:2px 10px;min-height:34px;border-bottom:1px solid #F0F2F5;}
+.mn-r:last-child{border-bottom:none;}
+.mn-r:nth-child(even){background:#FAFBFC;}
+.mn-r:hover{background:var(--sp2);}
+.mnc{display:flex;flex-direction:column;gap:2px;}
+.mn{font-size:10px;font-weight:700;cursor:pointer;color:var(--blue);text-decoration:underline;}
+.mn:hover{color:var(--spd);}
+.mbr{height:4px;background:#EEF0F4;border-radius:2px;width:60px;}
+.mbf{height:4px;border-radius:2px;}
+.ms{font-size:11px;font-weight:700;text-align:right;}
+.ms small{font-size:8px;font-weight:400;color:var(--gg3);}
+.pw{display:flex;align-items:center;gap:3px;}
+.pt{flex:1;height:6px;background:#EEF0F4;border-radius:3px;}
+.pf{height:6px;border-radius:3px;}
+.pl{font-size:9px;font-weight:700;min-width:30px;text-align:right;}
+.sh{font-size:9px;font-weight:700;color:var(--blue);text-align:right;}
+/* サマリー */
+.bp{padding:10px 12px;}
+.ch{font-size:10px;font-weight:700;color:var(--navy);margin-bottom:7px;padding-bottom:5px;border-bottom:2px solid var(--cream);}
+.ch2{font-size:10px;font-weight:700;color:var(--navy);margin:8px 0 6px;padding-top:8px;border-top:1px solid var(--g1);}
+.brow{margin-bottom:8px;}
+.brow:last-child{margin-bottom:0;}
+.btop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px;}
+.bnm{font-size:10px;font-weight:700;}
+.brt{font-size:12px;font-weight:900;}
+.bbr{height:6px;background:#EEF0F4;border-radius:3px;position:relative;overflow:visible;}
+.bbf{height:6px;border-radius:3px;}
+.bkl{position:absolute;top:-3px;bottom:-3px;width:0;border-left:1.5px dashed var(--red);}
+.bm{font-size:8px;color:var(--gg3);margin-top:2px;}
+.cp{padding:11px;}
+.cph{font-size:10px;font-weight:700;color:#fff;background:var(--navy);margin:-11px -11px 10px;padding:7px 11px;}
+.ci{display:flex;gap:6px;margin-bottom:10px;}
+.ci:last-child{margin-bottom:0;}
+.cb{width:21px;height:21px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;}
+.ct{font-size:9px;font-weight:700;margin-bottom:2px;}
+.cx{font-size:10px;line-height:1.6;}
+.nb{background:var(--bl2);border:1px solid #C8D8F0;border-radius:4px;padding:5px 10px;font-size:10px;font-weight:700;color:var(--blue);margin-top:6px;}
+.trt{width:100%;border-collapse:collapse;font-size:11px;}
+.trt th{background:var(--navy);color:#fff;padding:5px 7px;text-align:center;font-size:9px;font-weight:700;}
+.trt td{padding:5px 7px;border-bottom:1px solid var(--g1);text-align:center;}
+.trt tr:last-child td{border-bottom:none;}
+.trt tr:nth-child(even) td{background:#FAFBFC;}
+.trt td.tdl{text-align:left;font-weight:700;}
+.tok{color:var(--green);font-weight:700;}.tng{color:var(--red);font-weight:700;}
+.mgr{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px;}
+.mc{padding:12px;}
+.mtt{font-size:12px;font-weight:700;color:var(--sp);margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid var(--cream);}
+.mkr{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:8px;}
+.mk{background:var(--cream);border-radius:4px;padding:6px;text-align:center;}
+.mklb{font-size:8px;color:var(--gg2);font-weight:700;margin-bottom:2px;}
+.mkv{font-size:17px;font-weight:900;}
+.mku{font-size:8px;color:var(--gg2);}
+.mog{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px;}
+.mo-c{padding:12px;}
+.mo-t{font-size:12px;font-weight:700;margin-bottom:9px;padding-bottom:5px;border-bottom:2px solid var(--cream);}
+.mo-t.mob{color:var(--blue);}
+.mo-t.pop{color:var(--sp);}
+.hint{font-size:9px;color:var(--gg3);padding:2px 0 7px;text-align:right;}
+
+.chart-wrap{background:#fff;border:1px solid var(--g1);border-radius:7px;box-shadow:0 1px 5px rgba(0,0,0,.05);padding:14px 16px;margin-bottom:11px;}
+.chart-ttl{font-size:10px;font-weight:700;color:var(--navy);margin-bottom:10px;}
+.chart-area{position:relative;height:120px;display:flex;align-items:flex-end;gap:6px;}
+.chart-bars{display:flex;align-items:flex-end;gap:6px;flex:1;height:100%;}
+.chart-col{display:flex;flex-direction:column;align-items:center;flex:1;height:100%;justify-content:flex-end;gap:3px;}
+.chart-bar{width:100%;border-radius:3px 3px 0 0;min-height:2px;transition:height .3s;}
+.chart-lbl{font-size:8px;color:var(--gg2);text-align:center;white-space:nowrap;}
+.chart-val{font-size:8px;font-weight:700;text-align:center;}
+.chart-kpi-line{position:absolute;left:0;right:0;border-top:1.5px dashed var(--red);pointer-events:none;}
+.chart-grid{position:absolute;left:0;right:0;border-top:1px solid #F0F2F5;pointer-events:none;}
+.chart-y{display:flex;flex-direction:column;justify-content:space-between;font-size:8px;color:var(--gg3);text-align:right;padding-right:4px;height:100%;}
+.chart-legend{display:flex;gap:12px;margin-top:6px;}
+.chart-leg{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--gg2);}
+.chart-leg-dot{width:8px;height:8px;border-radius:2px;}
+
+.ftr{font-size:9px;color:var(--gg3);padding:9px 16px;border-top:1px solid var(--g1);background:#fff;text-align:right;}
+@media(max-width:900px){:root{--sb:175px;}.kg{grid-template-columns:repeat(3,1fr);}.bgr{grid-template-columns:1fr;}}
+@media(max-width:640px){.sb{display:none;}.kg{grid-template-columns:1fr 1fr;}.kc.km{grid-column:1/-1;}.bgr{grid-template-columns:1fr;}.mgr{grid-template-columns:1fr;}.mog{grid-template-columns:1fr;}}
+
+</style>
+</head>
+
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-ttl">季節メニュー販売数レポート</div>
+  <div class="hdr-r">
+    <span class="hdr-kpi">KPI：注文率 3.5%以上</span>
+    <span id="hdr-p" class="hdr-p"></span>
+  </div>
+</div>
+<!-- ドリルダウン -->
+<div class="dd-ov" id="dd-ov">
+  <div class="dd-modal">
+    <div class="dd-hdr">
+      <span id="dd-ico" style="font-size:16px"></span>
+      <span class="dd-ttl" id="dd-ttl"></span>
+      <button class="dd-x" id="dd-x">&#x2715;</button>
+    </div>
+    <div class="dd-body" id="dd-body"></div>
+  </div>
+</div>
+<div class="layout">
+<div class="sb">
+  <div class="sb-sec"><div class="sb-ttl">&#x1F4CB; 表示週</div><div id="sb-w"></div><button class="sb-btn" id="btn-cum" data-wk="__cum__">&#x1F4C8; 累積</button></div>
+  <div class="sb-sec">
+    <div class="sb-ttl">&#x1F3E2; 業態</div>
+    <button class="sb-btn a" data-f="biz" data-v="all">すべて</button>
+    <button class="sb-btn" data-f="biz" data-v="直営">直営</button>
+    <button class="sb-btn" data-f="biz" data-v="FC">FC</button>
+  </div>
+  <div class="sb-sec">
+    <div class="sb-ttl">&#x1F4CD; 立地</div>
+    <button class="sb-btn a" data-f="loc" data-v="all">すべて</button>
+    <button class="sb-btn" data-f="loc" data-v="SC">SC</button>
+    <button class="sb-btn" data-f="loc" data-v="路面">路面</button>
+    <button class="sb-btn" data-f="loc" data-v="ロードサイド">ロードサイド</button>
+  </div>
+  <div class="sb-sec">
+    <div class="sb-ttl">&#x1F5FA; 地域</div>
+    <button class="sb-btn a" data-f="rgn" data-v="all">すべて</button>
+    <button class="sb-btn" data-f="rgn" data-v="北海道">北海道</button>
+    <button class="sb-btn" data-f="rgn" data-v="東北">東北</button>
+    <button class="sb-btn" data-f="rgn" data-v="関東">関東</button>
+    <button class="sb-btn" data-f="rgn" data-v="北陸">北陸</button>
+    <button class="sb-btn" data-f="rgn" data-v="東海">東海</button>
+    <button class="sb-btn" data-f="rgn" data-v="関西">関西</button>
+    <button class="sb-btn" data-f="rgn" data-v="中国">中国</button>
+    <button class="sb-btn" data-f="rgn" data-v="四国">四国</button>
+  </div>
+  <div class="sb-sec">
+    <div class="sb-ttl">&#x1F4F1; 販促</div>
+    <button class="sb-btn a" data-f="mo" data-v="all">すべて</button>
+    <button class="sb-btn" data-f="mo" data-v="MO">MobileOrder</button>
+    <button class="sb-btn" data-f="mo" data-v="POP">季節メニューPOP</button>
+  </div>
+</div>
+<div class="main">
+  <div id="ld"><div class="spin"></div><p style="font-size:12px;color:var(--gg2)">データを読み込み中...</p></div>
+  <div id="nodata">
+    <div class="nodatabox">
+      <div style="font-size:40px;margin-bottom:8px">&#x1F338;</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:6px">データがありません</div>
+      <div style="font-size:12px;color:var(--gg2);line-height:1.7">
+        Googleドライブの<strong>「千房_春CSV」</strong>フォルダに<br>RAWデータCSVを追加後、再読み込みしてください
+      </div>
+    </div>
+  </div>
+  <div id="db">
+    <div class="tab-bar">
+      <div class="tab a" data-tab="w" id="t-w">&#x1F4C5; 週次</div>
+      <div class="tab" data-tab="m" id="t-m">&#x1F5D3; 月別</div>
+      <div class="tab" data-tab="mo" id="t-mo">&#x1F4F1; MO比較</div>
+    </div>
+    <div id="p-w"></div>
+    <div id="p-m" style="display:none"></div>
+    <div id="p-mo" style="display:none"></div>
+  </div>
+</div>
+</div>
+<div class="ftr" id="ftr"></div>
+
+<script>
+
+/* ロゴ：CSS background-image でbase64を直接適用（GASサンドボックス回避） */
+
+var KPI=3.5,MXR=10.0,RC=['rg','rs','rb'];
+var CI={dt:0,bz:6,st:8,mn:18,cu:22,sl:23};
+var SKW=['春玉','桜泡のふわとろ焼','生ハムと春野菜','\u751f\uff8a\uff91\u3068\u6625\u91ce\u83dc','春野菜のレモンソルト','春野菜の\uff9a\uff93\uff9d\uff7d\uff99\uff84','春色ポテトサラダ','春のデザート','苺と抹茶のあいす最中','春色ペアセット'];
+var LM={"千日前本店":"路面","リノアス八尾支店":"SC","京都アバンティ支店":"SC","堺東支店":"SC","高槻阪急スクエア支店":"SC","曽根崎支店":"路面","華 恵比寿ガーデンプレイス店":"SC","京橋京阪モール支店":"SC","ハービスＰＬＡＺＡ梅田支店":"SC","ハービスPLAZA梅田支店":"SC","有楽町ビックカメラ支店":"SC","そごう横浜店":"SC","ルミネ立川支店":"SC","あべのキューズモール支店":"SC","ヨドバシHD池袋ビル支店":"SC","名代JO-TERRACE OSAKA店":"SC","セレオ八王子支店":"SC","ららぽーと名古屋みなとアクルス店":"SC","舞 イクスピアリ店":"SC","有明ガーデン支店":"SC","イオンモール各務原インター支店":"SC","ぷれじでんと南本店":"路面","ぷれじでんと北店":"路面","ぷれじでんとシェラトン都ホテル大阪店":"SC","ぷれじでんとオー・エム・ホテル日航ビル店":"SC","ぷれじでんと大丸心斎橋店":"SC","琥 虎ノ門":"SC","道頓堀ビル店":"路面","Chibo's Kitchen ららぽーと甲子園店":"SC","すみ吉 心斎橋":"路面","阪急服部店":"路面","金剛店":"ロードサイド","高知野市店":"ロードサイド","岡山大安寺店":"ロードサイド","高知南国店":"ロードサイド","高松レインボー店":"ロードサイド","札幌アスティ４５店":"SC","丸太町七本松店":"路面","橋本高野口店":"ロードサイド","仙台一番町店":"路面","広島パセーラ店":"SC","静岡パルシェ店":"SC","江坂店":"路面","ザ・モール仙台長町店":"SC","ADVANCE 広尾店":"路面","イオンモール白山店":"SC","京都祇園店":"路面","せんちゅうパル店":"SC","北新地":"路面"};
+var RM={"千日前本店":"関西","リノアス八尾支店":"関西","京都アバンティ支店":"関西","堺東支店":"関西","高槻阪急スクエア支店":"関西","曽根崎支店":"関西","華 恵比寿ガーデンプレイス店":"関東","京橋京阪モール支店":"関西","ハービスＰＬＡＺＡ梅田支店":"関西","ハービスPLAZA梅田支店":"関西","有楽町ビックカメラ支店":"関東","そごう横浜店":"関東","ルミネ立川支店":"関東","あべのキューズモール支店":"関西","ヨドバシHD池袋ビル支店":"関東","名代JO-TERRACE OSAKA店":"関西","セレオ八王子支店":"関東","ららぽーと名古屋みなとアクルス店":"東海","舞 イクスピアリ店":"関東","有明ガーデン支店":"関東","イオンモール各務原インター支店":"東海","ぷれじでんと南本店":"関西","ぷれじでんと北店":"関西","ぷれじでんとシェラトン都ホテル大阪店":"関西","ぷれじでんとオー・エム・ホテル日航ビル店":"関西","ぷれじでんと大丸心斎橋店":"関西","琥 虎ノ門":"関東","道頓堀ビル店":"関西","Chibo's Kitchen ららぽーと甲子園店":"関西","すみ吉 心斎橋":"関西","阪急服部店":"関西","金剛店":"関西","高知野市店":"四国","岡山大安寺店":"中国","高知南国店":"四国","高松レインボー店":"四国","札幌アスティ４５店":"北海道","丸太町七本松店":"関西","橋本高野口店":"関西","仙台一番町店":"東北","広島パセーラ店":"中国","静岡パルシェ店":"東海","江坂店":"関西","ザ・モール仙台長町店":"東北","ADVANCE 広尾店":"関東","イオンモール白山店":"北陸","京都祇園店":"関西","せんちゅうパル店":"関西","北新地":"関西"};
+var MOS={"有楽町ビックカメラ支店":1,"舞 イクスピアリ店":1,"名代JO-TERRACE OSAKA店":1,"曽根崎支店":1};
+function gL(n){return LM[n]||"不明";}
+function gR(n){return RM[n]||"その他";}
+function gMO(n){return MOS[n]?"MO":"POP";}
+function isSp(nm){
+  if(nm.indexOf("\uff0a")>=0)return false;
+  for(var i=0;i<SKW.length;i++)if(nm.indexOf(SKW[i])>=0)return true;
+  return false;
+}
+function nMenu(nm){
+  if(nm.indexOf("春玉")>=0||nm.indexOf("桜泡のふわとろ焼")>=0)return "春玉（桜泡含む）";
+  if(nm.indexOf("生ハムと春野菜")>=0||nm.indexOf("\u751f\uff8a\uff91\u3068\u6625\u91ce\u83dc")>=0||nm.indexOf("春野菜のレモンソルト")>=0||nm.indexOf("春野菜の\uff9a\uff93\uff9d\uff7d\uff99\uff84")>=0)return "生ハムと春野菜の塩そば";
+  if(nm.indexOf("春のデザート")>=0||nm.indexOf("苺と抹茶のあいす最中")>=0)return "春のデザート（苺と抹茶含む）";
+  return nm;
+}
+function nBiz(b){
+  if(!b)return "その他";
+  if(b.indexOf("千房直営")>=0)return "直営";
+  if(b.indexOf("千房FC")>=0)return "FC";
+  return b;
+}
+/* ===== CSV解析 ===== */
+function pCSV(text){
+  var NL=String.fromCharCode(10),CR=String.fromCharCode(13);
+  if(text.charCodeAt(0)===0xFEFF)text=text.slice(1);
+  var clean="";
+  for(var i=0;i<text.length;i++){if(text[i]!==CR)clean+=text[i];}
+  var lines=clean.split(NL),result=[];
+  for(var i=0;i<lines.length;i++){
+    var ln=lines[i],cols=[],cur="",inQ=false;
+    for(var j=0;j<ln.length;j++){
+      var ch=ln[j];
+      if(ch==='"'){if(inQ&&ln[j+1]==='"'){cur+='"';j++;}else inQ=!inQ;}
+      else if(ch===","&&!inQ){cols.push(cur);cur="";}
+      else cur+=ch;
+    }
+    cols.push(cur);
+    if(cols.length>1)result.push(cols);
+  }
+  return result;
+}
+function exData(rows,fn){
+  var hRow=0;
+  for(var i=0;i<Math.min(5,rows.length);i++){
+    for(var j=0;j<rows[i].length;j++){
+      if(rows[i][j].indexOf("店舗名")>=0||rows[i][j].indexOf("メニュー")>=0){hRow=i;break;}
+    }
+  }
+  var sr=[];
+  for(var i=hRow+1;i<rows.length;i++){if(isSp(String(rows[i][CI.mn]||"")))sr.push(rows[i]);}
+  if(sr.length===0)return null;
+  var dates=[],ds={};
+  for(var i=0;i<sr.length;i++){var d=String(sr[i][CI.dt]||"").trim();if(d&&!ds[d]){dates.push(d);ds[d]=1;}}
+  dates.sort();
+  var wk=dates.length?dates[0]:fn,wl=dates.length?dates[0]+"〜"+dates[dates.length-1]:fn;
+  var mon=3;
+  if(dates.length&&(dates[0].indexOf("/04/")>=0||dates[0].indexOf("-04-")>=0))mon=4;
+  /* 店舗最大客数 */
+  var cM={};
+  for(var i=0;i<sr.length;i++){
+    var sn=String(sr[i][CI.st]||"").trim(),cv=Number(sr[i][CI.cu])||0;
+    if(!cM[sn]||cv>cM[sn])cM[sn]=cv;
+  }
+  /* stM smMap mnM */
+  var stM={},smMap={},mnM={};
+  for(var i=0;i<sr.length;i++){
+    var rr=sr[i];
+    var store=String(rr[CI.st]||"").trim();
+    var biz=String(rr[CI.bz]||"").trim();
+    var menu=nMenu(String(rr[CI.mn]||"").trim());
+    var sales=Number(rr[CI.sl])||0;
+    if(!store)continue;
+    if(!stM[store])stM[store]={biz:biz,sales:0};
+    stM[store].sales+=sales;
+    if(!mnM[menu])mnM[menu]=0;
+    mnM[menu]+=sales;
+    if(!smMap[store])smMap[store]={};
+    if(!smMap[store][menu])smMap[store][menu]=0;
+    smMap[store][menu]+=sales;
+  }
+  var stores=[];
+  for(var nm in stM){
+    var sd=stM[nm],cu=cM[nm]||0;
+    stores.push({name:nm,biz:nBiz(sd.biz),loc:gL(nm),rgn:gR(nm),mo:gMO(nm),sales:sd.sales,cust:cu,rate:cu>0?sd.sales/cu*100:0});
+  }
+  stores.sort(function(a,b){return b.rate-a.rate;});
+  var ml=[];for(var m in mnM)ml.push({name:m,sales:mnM[m]});
+  ml.sort(function(a,b){return b.sales-a.sales;});
+  var ts=0,tc=0;for(var i=0;i<stores.length;i++){ts+=stores[i].sales;tc+=stores[i].cust;}
+  return{wk:wk,wl:wl,mon:mon,stores:stores,ml:ml,ts:ts,tc:tc,ovr:tc>0?ts/tc*100:0,cM:cM,smMap:smMap};
+}
+/* ===== フィルター後の再集計 ===== */
+function aggFs(fs){
+  var bm={},lm={},rm={},mm={};
+  for(var i=0;i<fs.length;i++){
+    var s=fs[i];
+    [["biz",bm],["loc",lm],["rgn",rm],["mo",mm]].forEach(function(pair){
+      var key=s[pair[0]],map=pair[1];
+      if(!map[key])map[key]={sales:0,cust:0,cnt:0};
+      map[key].sales+=s.sales;map[key].cust+=s.cust;map[key].cnt+=1;
+    });
+  }
+  function toL(map){
+    var l=[];
+    for(var k in map){var d=map[k];l.push({name:k,sales:d.sales,cnt:d.cnt,rate:d.cust>0?d.sales/d.cust*100:0});}
+    l.sort(function(a,b){return b.rate-a.rate;});
+    return l;
+  }
+  return{bl:toL(bm),ll:toL(lm),rl:toL(rm),mol:toL(mm)};
+}
+function aggMenu(fs,smMap){
+  var mm={};
+  for(var i=0;i<fs.length;i++){
+    var sm=smMap[fs[i].name]||{};
+    for(var mn in sm){if(!mm[mn])mm[mn]=0;mm[mn]+=sm[mn];}
+  }
+  var ml=[];for(var m in mm)ml.push({name:m,sales:mm[m]});
+  ml.sort(function(a,b){return b.sales-a.sales;});
+  return ml;
+}
+/* ===== フィルター ===== */
+var F={biz:"all",loc:"all",rgn:"all",mo:"all"};
+var CW=null,ALL_WK=[];
+function apF(stores){
+  return stores.filter(function(s){
+    return(F.biz==="all"||s.biz===F.biz)&&(F.loc==="all"||s.loc===F.loc)&&
+           (F.rgn==="all"||s.rgn===F.rgn)&&(F.mo==="all"||s.mo===F.mo);
+  });
+}
+function fLbl(){
+  var p=[];
+  if(F.biz!=="all")p.push("業態："+F.biz);
+  if(F.loc!=="all")p.push("立地："+F.loc);
+  if(F.rgn!=="all")p.push("地域："+F.rgn);
+  if(F.mo!=="all")p.push("販促："+(F.mo==="MO"?"MobileOrder":"季節メニューPOP"));
+  return p.join(" / ");
+}
+/* ===== ドリルダウン（storeインデックス経由でクォート問題回避） ===== */
+var _DD_STORES=[],_DD_MENUS=[];
+function openDrillStore(idx){
+  var d=ALL_WK.filter(function(x){return x.wk===CW;})[0];
+  if(!d)return;
+  var store=_DD_STORES[idx];
+  var sm=d.smMap[store]||{};
+  var cu=d.cM[store]||0;
+  var items=[];
+  for(var mn in sm)items.push({name:mn,sales:sm[mn],rate:cu>0?sm[mn]/cu*100:0});
+  items.sort(function(a,b){return b.rate-a.rate;});
+  var mx=items.length?Math.max(items[0].rate,KPI*2):KPI*2;
+  var kpct=KPI/mx*100;
+  var h="<div style='margin-bottom:8px;font-size:10px;color:var(--gg2)'>総客数：<strong>"+cu.toLocaleString()+"名</strong>　KPI：<strong>"+KPI+"%</strong></div>";
+  h+="<div class='dd-tbl-h' style='grid-template-columns:minmax(0,1fr) 130px 56px 44px;'><span style='font-size:9px;font-weight:700;color:#fff'>メニュー名</span><span style='font-size:9px;font-weight:700;color:#fff'>注文率</span><span style='font-size:9px;font-weight:700;color:#fff;text-align:right'>注文率</span><span style='font-size:9px;font-weight:700;color:#fff;text-align:right'>販売数</span></div>";
+  for(var i=0;i<items.length;i++){
+    var it=items[i],ok=it.rate>=KPI,fc=ok?"var(--green)":"var(--red)";
+    var bw=Math.min(it.rate/mx*100,100);
+    h+="<div class='dd-row' style='grid-template-columns:minmax(0,1fr) 130px 56px 44px;'><div class='dd-nm'>"+it.name+"</div><div class='dd-bw'><div class='dd-bt'><div class='dd-bf' style='width:"+bw+"%;background:"+fc+"'></div></div><div class='dd-kl' style='left:"+kpct+"%'></div></div><div class='dd-rv' style='color:"+fc+"'>"+it.rate.toFixed(2)+"%</div><div class='dd-sv'>"+it.sales+"食</div></div>";
+  }
+  if(!items.length)h+="<div style='padding:20px;text-align:center;color:var(--gg3);font-size:11px'>データなし</div>";
+  document.getElementById("dd-ico").textContent="\uD83C\uDFEA";
+  document.getElementById("dd-ttl").textContent=store+" ─ メニュー別注文率";
+  document.getElementById("dd-body").innerHTML=h;
+  document.getElementById("dd-ov").classList.add("s");
+}
+function openDrillMenu(idx){
+  var menuName=_DD_MENUS[idx];
+  var storeMap={};
+  for(var i=0;i<ALL_WK.length;i++){
+    var d=ALL_WK[i];
+    for(var sn in d.smMap){
+      if(d.smMap[sn][menuName]===undefined)continue;
+      if(!storeMap[sn])storeMap[sn]={sales:0,cust:0};
+      storeMap[sn].sales+=d.smMap[sn][menuName];
+      storeMap[sn].cust+=(d.cM[sn]||0);
+    }
+  }
+  var items=[];
+  for(var sn in storeMap){
+    var sd=storeMap[sn];
+    items.push({name:sn,sales:sd.sales,cust:sd.cust,rate:sd.cust>0?sd.sales/sd.cust*100:0,rgn:gR(sn)});
+  }
+  items.sort(function(a,b){return b.rate-a.rate;});
+  var mx=items.length?Math.max(items[0].rate,KPI*2):KPI*2;
+  var kpct=KPI/mx*100;
+  var h="<div style='margin-bottom:8px;font-size:10px;color:var(--gg2)'>全"+ALL_WK.length+"週累積　KPI：<strong>"+KPI+"%</strong></div>";
+  h+="<div class='dd-tbl-h' style='grid-template-columns:minmax(0,1fr) 50px 130px 56px 44px;'><span style='font-size:9px;font-weight:700;color:#fff'>店舗名</span><span style='font-size:9px;font-weight:700;color:#fff;text-align:center'>地域</span><span style='font-size:9px;font-weight:700;color:#fff'>注文率</span><span style='font-size:9px;font-weight:700;color:#fff;text-align:right'>注文率</span><span style='font-size:9px;font-weight:700;color:#fff;text-align:right'>販売数</span></div>";
+  for(var i=0;i<items.length;i++){
+    var it=items[i],ok=it.rate>=KPI,fc=ok?"var(--green)":"var(--red)";
+    var bw=Math.min(it.rate/mx*100,100);
+    h+="<div class='dd-row' style='grid-template-columns:minmax(0,1fr) 50px 130px 56px 44px;'><div class='dd-nm'>"+it.name+"</div><div style='font-size:8px;text-align:center;color:var(--gg2)'>"+it.rgn+"</div><div class='dd-bw'><div class='dd-bt'><div class='dd-bf' style='width:"+bw+"%;background:"+fc+"'></div></div><div class='dd-kl' style='left:"+kpct+"%'></div></div><div class='dd-rv' style='color:"+fc+"'>"+it.rate.toFixed(2)+"%</div><div class='dd-sv'>"+it.sales+"食</div></div>";
+  }
+  if(!items.length)h+="<div style='padding:20px;text-align:center;color:var(--gg3);font-size:11px'>データなし</div>";
+  document.getElementById("dd-ico").textContent="\uD83C\uDF7D";
+  document.getElementById("dd-ttl").textContent=menuName+" ─ 店舗別注文率（累積）";
+  document.getElementById("dd-body").innerHTML=h;
+  document.getElementById("dd-ov").classList.add("s");
+}
+/* ===== RENDER ===== */
+function renderAll(){
+  if(!ALL_WK.length){
+    document.getElementById("ld").style.display="none";
+    document.getElementById("nodata").style.display="flex";
+    document.getElementById("db").style.display="none";
+    return;
+  }
+  if(!CW)CW=ALL_WK[ALL_WK.length-1].wk;
+  document.getElementById("ld").style.display="none";
+  document.getElementById("nodata").style.display="none";
+  document.getElementById("db").style.display="block";
+  rSbW();
+  var d=ALL_WK.filter(function(x){return x.wk===CW;})[0]||ALL_WK[ALL_WK.length-1];
+  /* 累積モードはrWeek内で処理するためダミーデータで呼び出し */
+  if(CW==="__cum__"){
+    rWeek(null,[],[],0,{bl:[],ll:[],rl:[]});
+  } else {
+    var fs=apF(d.stores);
+    var agg=aggFs(fs);
+    var ml=aggMenu(fs,d.smMap);
+    var ts=0,tc=0;for(var i=0;i<fs.length;i++){ts+=fs[i].sales;tc+=fs[i].cust;}
+    rWeek(d,fs,ml,ts,agg);
+  }
+  rMon();rMO();
+  document.getElementById("hdr-p").textContent=d.wl;
+  var fl=fLbl();
+  document.getElementById("ftr").textContent=ALL_WK.length+"週分のデータ | "+d.wl+(fl?" | "+fl:"");
+}
+function rSbW(){
+  var h="";
+  for(var i=0;i<ALL_WK.length;i++){
+    var w=ALL_WK[i];
+    h+="<button class='sb-btn"+(w.wk===CW?" a2":"")+"' data-wk='"+w.wk+"'>"+(i+1)+"W<br><span style='font-size:8px;font-weight:400;opacity:.8'>"+w.wl+"</span></button>";
+  }
+  document.getElementById("sb-w").innerHTML=h;
+  var cb=document.getElementById("btn-cum");
+  if(cb)cb.className="sb-btn"+(CW==="__cum__"?" a2":"");
+}
+/* ===== KPI ===== */
+function bKPI(fs){
+  var ts=0,tc=0;
+  for(var i=0;i<fs.length;i++){ts+=fs[i].sales;tc+=fs[i].cust;}
+  var ov=tc>0?ts/tc*100:0,ok=ov>=KPI,n=fs.length,okS=0;
+  for(var i=0;i<n;i++)if(fs[i].rate>=KPI)okS++;
+  var ng=n-okS,top=fs[0],bot=fs[n-1];
+  return "<div class='kg'>"+
+    "<div class='kc km'><div class='kl'>注文率</div><div class='kb'>"+ov.toFixed(2)+"<span class='ku'> %</span></div>"+
+    "<div class='bgs'><span class='bg "+(ok?"bok":"bng")+"'>"+(ok?"&#x25B2; KPI達成":"&#x25BC; KPI未達")+"</span><span class='bg bif'>KPI "+KPI+"%</span></div></div>"+
+    "<div class='kc'><div class='kl'>春メニュー販売数</div><div><span class='kv' style='color:var(--sp)'>"+ts.toLocaleString()+"</span><span class='ku2'> 食</span></div><div class='kn'>総客数："+tc.toLocaleString()+"名</div></div>"+
+    "<div class='kc'><div class='kl'>KPI達成（"+n+"店）</div><div class='agr'>"+
+      "<div class='ab aok'><div class='an'>"+okS+"</div><div class='al'>店 達成</div></div>"+
+      "<div class='ab ang'><div class='an'>"+ng+"</div><div class='al'>店 未達</div></div></div></div>"+
+    "<div class='kc'><div class='kl'>最高注文率</div><div><span class='kv' style='color:var(--green)'>"+(top?top.rate.toFixed(2):"--")+"</span><span class='ku2'> %</span></div><div class='kn'>"+(top?top.name:"")+"</div></div>"+
+    "<div class='kc'><div class='kl'>最低注文率</div><div><span class='kv' style='color:var(--red)'>"+(bot?bot.rate.toFixed(2):"--")+"</span><span class='ku2'> %</span></div><div class='kn'>"+(bot?bot.name:"")+"</div></div>"+
+  "</div>";
+}
+/* ===== RANK ===== */
+function bRank(stores){
+  _DD_STORES=[];
+  var h="<div class='card'><div style='overflow-x:auto'>"+
+    "<div style='font-size:9px;color:var(--spd);padding:4px 9px;background:var(--sp2)'>&#x1F4CC; 店舗名をクリック → メニュー別注文率</div>"+
+    "<div class='rk-h'><span></span><span>店舗名</span><span class='tc'>業態</span><span class='tc'>立地</span><span class='tc'>地域</span><span>注文率（赤破線=KPI "+KPI+"%）</span><span class='tr'>注文率</span><span class='tc'>判定</span></div>";
+  for(var i=0;i<stores.length;i++){
+    var s=stores[i],ok=s.rate>=KPI,fc=ok?"var(--green)":"var(--red)";
+    var bp=Math.min(s.rate/MXR*100,100),kp=KPI/MXR*100;
+    var lc=s.loc==="SC"?"var(--blue)":s.loc==="路面"?"var(--sp)":"var(--green)";
+    var idx=_DD_STORES.length;
+    _DD_STORES.push(s.name);
+    h+="<div class='rk-r' data-si='"+idx+"'>"+
+      "<div><div class='rn "+(i<3?RC[i]:"rp")+"'>"+(i+1)+"</div></div>"+
+      "<div class='sn"+(i<5?" b":"")+"' data-si='"+idx+"'>"+s.name+"</div>"+
+      "<div class='bt2'>"+s.biz+"</div>"+
+      "<div style='font-size:8px;text-align:center;font-weight:700;color:"+lc+"'>"+s.loc+"</div>"+
+      "<div style='font-size:8px;text-align:center;color:var(--gg2)'>"+s.rgn+"</div>"+
+      "<div class='bw'><div class='bt'><div class='bf' style='width:"+bp+"%;background:"+fc+"'></div></div><div class='kln' style='left:"+kp+"%'></div></div>"+
+      "<div class='rv "+(ok?"oc":"nc")+"'>"+s.rate.toFixed(2)+"%</div>"+
+      "<div class='jv "+(ok?"oc":"nc")+"'>"+(ok?"達成":"未達")+"</div>"+
+    "</div>";
+  }
+  return h+"</div></div>";
+}
+/* ===== MENU ===== */
+function bMenu(ml,ts){
+  _DD_MENUS=[];
+  var mx=ml.length?ml[0].sales:1;
+  var h="<div class='card'>"+
+    "<div style='font-size:9px;color:var(--spd);padding:4px 10px;background:var(--sp2)'>&#x1F4CC; メニュー名をクリック → 店舗別注文率（累積）</div>"+
+    "<div class='mn-h'><span></span><span>メニュー名（販売数降順）</span><span class='tr'>販売数</span><span>構成比</span><span class='tr'>全体</span></div>";
+  for(var i=0;i<ml.length;i++){
+    var m=ml[i],pct=ts>0?m.sales/ts*100:0,mw=mx>0?m.sales/mx*100:0;
+    var bc=i===0?"var(--sp)":i===1?"#E8A070":"var(--gg2)";
+    var idx=_DD_MENUS.length;
+    _DD_MENUS.push(m.name);
+    h+="<div class='mn-r'>"+
+      "<div><div class='rn "+(i<3?RC[i]:"rp")+"'>"+(i+1)+"</div></div>"+
+      "<div class='mnc'><div class='mn' data-mi='"+idx+"'>"+m.name+"</div>"+
+      "<div class='mbr'><div class='mbf' style='width:"+mw+"%;background:"+bc+"'></div></div></div>"+
+      "<div class='ms'>"+m.sales.toLocaleString()+"<small>食</small></div>"+
+      "<div class='pw'><div class='pt'><div class='pf' style='width:"+Math.min(pct/60*100,100)+"%;background:"+bc+"'></div></div><div class='pl' style='color:"+bc+"'>"+pct.toFixed(1)+"%</div></div>"+
+      "<div class='sh'>"+(i<2?pct.toFixed(0)+"%":"")+"</div>"+
+    "</div>";
+  }
+  return h+"</div>";
+}
+/* ===== SUMMARY ===== */
+function bSum(bl,ll,rl){
+  return "<div class='ch'>業態別　注文率（高順）</div>"+bRows(bl)+
+    "<div class='ch2'>立地別　注文率（高順）</div>"+bRows(ll)+
+    "<div class='ch2'>地域別　注文率（高順）</div>"+bRows(rl);
+}
+function bRows(list){
+  var h="";
+  for(var i=0;i<list.length;i++){
+    var b=list[i],ok=b.rate>=KPI,fc=ok?"var(--green)":"var(--red)";
+    var bw=Math.min(b.rate/MXR*100,100),kw=KPI/MXR*100;
+    h+="<div class='brow'><div class='btop'><span class='bnm'>"+b.name+"</span><span class='brt' style='color:"+fc+"'>"+b.rate.toFixed(2)+"%</span></div>"+
+      "<div class='bbr'><div class='bbf' style='width:"+bw+"%;background:"+fc+"'></div><div class='bkl' style='left:"+kw+"%'></div></div>"+
+      "<div class='bm'>"+b.sales.toLocaleString()+"食 / "+b.cnt+"店</div></div>";
+  }
+  return h;
+}
+/* ===== COMMENT ===== */
+function bCmt(fs,ml,ts){
+  var tc=0,okS=0,n=fs.length;
+  for(var i=0;i<n;i++){tc+=fs[i].cust;if(fs[i].rate>=KPI)okS++;}
+  var ov=tc>0?ts/tc*100:0,ok=ov>=KPI,ng=n-okS;
+  var t1=ml[0],t2=ml[1];
+  var t2s=(t1?t1.sales:0)+(t2?t2.sales:0),t2p=ts>0?Math.round(t2s/ts*100):0;
+  var top=fs[0],bot=fs[n-1];
+  var c1=ok?"注文率"+ov.toFixed(2)+"%でKPI達成。"+n+"店中"+okS+"店達成。":"注文率"+ov.toFixed(2)+"%でKPI未達。"+n+"店中"+ng+"店が未達。早期改善が必要。";
+  var c2="最高："+(top?top.name:"-")+" "+(top?top.rate.toFixed(2):0)+"%、最低："+(bot?bot.name:"-")+" "+(bot?bot.rate.toFixed(2):0)+"%。"+(ng>0?ng+"店がKPI未達。":"全店達成。");
+  var c3="主力品「"+(t1?t1.name:"-")+"」が全体の"+(t1&&ts>0?Math.round(t1.sales/ts*100):0)+"%。上位2品で"+t2p+"%（"+t2s.toLocaleString()+"食）に集中。";
+  var c1c=ok?"var(--green)":"var(--red)",c1b=ok?"var(--g2)":"var(--r2)",c1bd=ok?"var(--g3)":"var(--r3)";
+  return "<div class='cph'>&#x1F4A1; 自動分析コメント</div>"+
+    "<div class='ci'><div class='cb' style='background:"+c1b+";border:1px solid "+c1bd+"'><span style='color:"+c1c+"'>①</span></div><div><div class='ct' style='color:"+c1c+"'>【週次評価】</div><div class='cx'>"+c1+"</div></div></div>"+
+    "<div class='ci'><div class='cb' style='background:var(--bl2);border:1px solid #C8D8F0'><span style='color:var(--blue)'>②</span></div><div><div class='ct' style='color:var(--blue)'>【店舗差】</div><div class='cx'>"+c2+"</div></div></div>"+
+    "<div class='ci'><div class='cb' style='background:var(--sp2);border:1px solid var(--sp3)'><span style='color:var(--sp)'>③</span></div><div><div class='ct' style='color:var(--sp)'>【示唆】</div><div class='cx'>"+c3+"</div></div></div>";
+}
+/* ===== WEEKLY ===== */
+function rWeek(d,fs,ml,ts,agg){
+  var fl=fLbl();
+  /* 累積モード */
+  if(CW==="__cum__"){rWeekCum();return;}
+  /* 週次グラフ（全週フィルター後） */
+  var wkFs=ALL_WK.map(function(wd){
+    var wfs=apF(wd.stores),wts=0,wtc=0;
+    for(var ii=0;ii<wfs.length;ii++){wts+=wfs[ii].sales;wtc+=wfs[ii].cust;}
+    return{wl:wd.wl,ovr:wtc>0?wts/wtc*100:0,ts:wts,tc:wtc};
+  });
+  document.getElementById("p-w").innerHTML=
+    bKPI(fs)+
+    (ALL_WK.length>=2?"<div class='slbl'>週次推移グラフ</div>"+bChart(wkFs):"" )+
+    "<div class='slbl'>店舗別 注文率ランキング</div>"+
+    (fl?"<div class='fb s'>&#x1F50D; フィルター："+fl+"<span class='fc' id='clr-f'>クリア</span></div>":"")+
+    "<div style='margin-bottom:11px;'>"+bRank(fs)+"</div>"+
+    "<div class='slbl'>メニュー別 販売数（降順）/ 分析</div>"+
+    "<div class='bgr'><div>"+bMenu(ml,ts)+"</div>"+
+    "<div><div class='card bp' style='margin-bottom:9px;'>"+bSum(agg.bl,agg.ll,agg.rl)+"</div>"+
+    "<div class='card cp'>"+bCmt(fs,ml,ts)+"</div></div></div>";
+  /* イベントは委任で一括設定 */
+  var pw=document.getElementById("p-w");
+  if(document.getElementById("clr-f"))document.getElementById("clr-f").addEventListener("click",clrF);
+  pw.addEventListener("click",function(e){
+    var t=e.target;
+    /* 店舗クリック */
+    var si=t.getAttribute("data-si");
+    if(si!==null){openDrillStore(parseInt(si));return;}
+    /* メニュークリック */
+    var mi=t.getAttribute("data-mi");
+    if(mi!==null){openDrillMenu(parseInt(mi));return;}
+  });
+}
+function clrF(){
+  F={biz:"all",loc:"all",rgn:"all",mo:"all"};
+  document.querySelectorAll(".sb-btn[data-f]").forEach(function(b){
+    b.classList.toggle("a",b.getAttribute("data-v")==="all");
+  });
+  renderAll();
+}
+
+/* ===== CHART ===== */
+function bChart(wks){
+  if(wks.length<2)return "";
+  var maxR=0,minR=Infinity,maxS=0,minS=Infinity;
+  for(var i=0;i<wks.length;i++){
+    if(wks[i].ovr>maxR)maxR=wks[i].ovr;
+    if(wks[i].ovr<minR)minR=wks[i].ovr;
+    if(wks[i].ts>maxS)maxS=wks[i].ts;
+    if(wks[i].ts<minS)minS=wks[i].ts;
+  }
+  /* 差分強調：ベース値を最小値の90%に設定（棒の差が視覚的に出る） */
+  var baseR=Math.min(minR*0.85, KPI*0.6);
+  var baseS=minS*0.75;
+  var rangeR=maxR-baseR||0.01;
+  var rangeS=maxS-baseS||1;
+  /* KPI線の位置（ベースからの相対） */
+  var kpiPct=Math.max(0,Math.min(100,(KPI-baseR)/rangeR*100));
+  /* 注文率グラフ */
+  var rbars="";
+  for(var i=0;i<wks.length;i++){
+    var d=wks[i],ok=d.ovr>=KPI,pct=Math.max(4,(d.ovr-baseR)/rangeR*100);
+    var fc=ok?"var(--green)":"var(--red)";
+    rbars+="<div class='chart-col'>"+
+      "<div class='chart-val' style='color:"+fc+"'>"+d.ovr.toFixed(2)+"%</div>"+
+      "<div class='chart-bar' style='height:"+pct+"%;background:"+fc+";width:100%'></div>"+
+      "<div class='chart-lbl'>"+(i+1)+"W</div>"+
+    "</div>";
+  }
+  /* 販売数グラフ */
+  var sbars="";
+  for(var i=0;i<wks.length;i++){
+    var d=wks[i],pct=Math.max(4,(d.ts-baseS)/rangeS*100);
+    var sc=d.ts>=maxS?"var(--green)":d.ts<=minS?"var(--red)":"var(--sp)";
+    sbars+="<div class='chart-col'>"+
+      "<div class='chart-val' style='color:"+sc+"'>"+d.ts.toLocaleString()+"</div>"+
+      "<div class='chart-bar' style='height:"+pct+"%;background:var(--sp);width:100%'></div>"+
+      "<div class='chart-lbl'>"+(i+1)+"W</div>"+
+    "</div>";
+  }
+  /* Y軸ラベル（注文率） */
+  var yR="<div class='chart-y'>"+
+    "<span>"+maxR.toFixed(1)+"%</span>"+
+    "<span>"+((baseR+rangeR/2)).toFixed(1)+"%</span>"+
+    "<span>"+baseR.toFixed(1)+"%</span>"+
+  "</div>";
+  var yS="<div class='chart-y'>"+
+    "<span>"+Math.round(maxS)+"</span>"+
+    "<span>"+Math.round(baseS+rangeS/2)+"</span>"+
+    "<span>"+Math.round(baseS)+"</span>"+
+  "</div>";
+  var kLineR="<div class='chart-kpi-line' style='bottom:"+kpiPct+"%' title='KPI "+KPI+"%'></div>";
+  var gridR="<div class='chart-grid' style='bottom:50%'></div><div class='chart-grid' style='bottom:0%'></div>";
+  return "<div style='display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px;'>"+
+    "<div class='chart-wrap'><div class='chart-ttl'>&#x1F4C8; 注文率 週次推移（赤破線=KPI "+KPI+"%）</div>"+
+      "<div class='chart-area'>"+gridR+kLineR+yR+"<div class='chart-bars'>"+rbars+"</div></div>"+
+      "<div style='font-size:8px;color:var(--gg3);text-align:right;margin-top:3px'>※ ベースラインを切り捨て表示</div>"+
+    "</div>"+
+    "<div class='chart-wrap'><div class='chart-ttl'>&#x1F338; 春メニュー販売数 週次推移</div>"+
+      "<div class='chart-area'>"+gridR+yS+"<div class='chart-bars'>"+sbars+"</div></div>"+
+      "<div style='font-size:8px;color:var(--gg3);text-align:right;margin-top:3px'>※ ベースラインを切り捨て表示</div>"+
+    "</div>"+
+  "</div>";
+}
+
+/* ===== 累積（週次タブ内表示） ===== */
+function rWeekCum(){
+  var sM={},smC={};
+  for(var i=0;i<ALL_WK.length;i++){
+    var d=ALL_WK[i];
+    for(var j=0;j<d.stores.length;j++){
+      var s=d.stores[j];
+      if(!sM[s.name])sM[s.name]={biz:s.biz,loc:s.loc,rgn:s.rgn,mo:s.mo,sales:0,cust:0};
+      sM[s.name].sales+=s.sales;sM[s.name].cust+=s.cust;
+    }
+    for(var sn in d.smMap){
+      if(!smC[sn])smC[sn]={};
+      for(var mn in d.smMap[sn]){if(!smC[sn][mn])smC[sn][mn]=0;smC[sn][mn]+=d.smMap[sn][mn];}
+    }
+  }
+  var stores=[];
+  for(var nm in sM){var s=sM[nm];stores.push({name:nm,biz:s.biz,loc:s.loc,rgn:s.rgn,mo:s.mo,sales:s.sales,cust:s.cust,rate:s.cust>0?s.sales/s.cust*100:0});}
+  stores.sort(function(a,b){return b.rate-a.rate;});
+  var fs=apF(stores);
+  var agg=aggFs(fs);
+  var ml=aggMenu(fs,smC);
+  var ts=0,tc=0;for(var i=0;i<fs.length;i++){ts+=fs[i].sales;tc+=fs[i].cust;}
+  var wkFs=ALL_WK.map(function(wd){
+    var wfs=apF(wd.stores),wts=0,wtc=0;
+    for(var ii=0;ii<wfs.length;ii++){wts+=wfs[ii].sales;wtc+=wfs[ii].cust;}
+    return{wl:wd.wl,ovr:wtc>0?wts/wtc*100:0,ts:wts,tc:wtc};
+  });
+  var tr="";for(var i=0;i<wkFs.length;i++)tr+=trRow(wkFs[i],i);
+  var fl=fLbl();
+  document.getElementById("p-w").innerHTML=
+    "<div class='nb' style='margin-bottom:10px;'>&#x1F4C8; 累積表示（全"+ALL_WK.length+"週）</div>"+
+    bKPI(fs)+
+    (ALL_WK.length>=2?"<div class='slbl'>週次推移グラフ</div>"+bChart(wkFs):"")+
+    "<div class='slbl'>週次トレンド</div>"+
+    "<div class='card' style='margin-bottom:11px;overflow-x:auto;'><table class='trt'><thead><tr><th>週</th><th>期間</th><th>注文率</th><th>販売数</th><th>総客数</th><th>KPI</th></tr></thead><tbody>"+tr+"</tbody></table></div>"+
+    "<div class='slbl'>累積 店舗別ランキング</div>"+
+    (fl?"<div class='fb s'>&#x1F50D; フィルター："+fl+"<span class='fc' id='clr-f'>クリア</span></div>":"")+
+    "<div style='margin-bottom:11px;'>"+bRank(fs)+"</div>"+
+    "<div class='slbl'>累積 メニュー別（降順）/ 集計</div>"+
+    "<div class='bgr'><div>"+bMenu(ml,ts)+"</div><div><div class='card bp'>"+bSum(agg.bl,agg.ll,agg.rl)+"</div></div></div>";
+  /* イベント */
+  var pw=document.getElementById("p-w");
+  if(document.getElementById("clr-f"))document.getElementById("clr-f").addEventListener("click",clrF);
+  pw.addEventListener("click",function(e){
+    var si=e.target.getAttribute("data-si");if(si!==null){openDrillStore(parseInt(si));return;}
+    var mi=e.target.getAttribute("data-mi");if(mi!==null){openDrillMenu(parseInt(mi));return;}
+  });
+}
+/* ===== TREND ROW ===== */
+function trRow(d,idx){
+  var ok=d.ovr>=KPI,wn=(idx+1)+"W";
+  return "<tr><td class='tdl'>"+wn+"</td><td class='tdl' style='font-weight:400;color:var(--gg2);font-size:9px'>"+d.wl+"</td><td class='"+(ok?"tok":"tng")+"'>"+d.ovr.toFixed(2)+"%</td><td>"+d.ts.toLocaleString()+"食</td><td>"+d.tc.toLocaleString()+"名</td><td class='"+(ok?"tok":"tng")+"'>"+(ok?"達成":"未達")+"</td></tr>";
+}
+/* ===== CUMULATIVE ===== */
+function rCum(){
+  var sM={},smC={},cMC={};
+  for(var i=0;i<ALL_WK.length;i++){
+    var d=ALL_WK[i];
+    for(var j=0;j<d.stores.length;j++){
+      var s=d.stores[j];
+      if(!sM[s.name])sM[s.name]={biz:s.biz,loc:s.loc,rgn:s.rgn,mo:s.mo,sales:0,cust:0};
+      sM[s.name].sales+=s.sales;sM[s.name].cust+=s.cust;
+    }
+    for(var sn in d.smMap){
+      if(!smC[sn])smC[sn]={};
+      for(var mn in d.smMap[sn]){if(!smC[sn][mn])smC[sn][mn]=0;smC[sn][mn]+=d.smMap[sn][mn];}
+      if(!cMC[sn])cMC[sn]=0;cMC[sn]+=(d.cM[sn]||0);
+    }
+  }
+  var stores=[];
+  for(var nm in sM){var s=sM[nm];stores.push({name:nm,biz:s.biz,loc:s.loc,rgn:s.rgn,mo:s.mo,sales:s.sales,cust:s.cust,rate:s.cust>0?s.sales/s.cust*100:0});}
+  stores.sort(function(a,b){return b.rate-a.rate;});
+  var fs=apF(stores);
+  var agg=aggFs(fs);
+  var ml=aggMenu(fs,smC);
+  var ts=0,tc=0;for(var i=0;i<fs.length;i++){ts+=fs[i].sales;tc+=fs[i].cust;}
+  /* フィルター後の週別集計（グラフ・トレンド用） */
+  var wkFs=ALL_WK.map(function(d){
+    var wfs=apF(d.stores);
+    var wts=0,wtc=0;for(var ii=0;ii<wfs.length;ii++){wts+=wfs[ii].sales;wtc+=wfs[ii].cust;}
+    return{wl:d.wl,ovr:wtc>0?wts/wtc*100:0,ts:wts,tc:wtc};
+  });
+  var tr="";for(var i=0;i<wkFs.length;i++)tr+=trRow(wkFs[i],i);
+  document.getElementById("p-c").innerHTML=
+    "<div class='slbl'>累積 KPI（"+ALL_WK.length+"週分）</div>"+bKPI(fs)+
+    "<div class='slbl'>週次推移グラフ</div>"+bChart(wkFs)+"<div class='slbl'>週次トレンド</div>"+
+    "<div class='card' style='margin-bottom:11px;overflow-x:auto;'><table class='trt'><thead><tr><th>週</th><th>期間</th><th>注文率</th><th>販売数</th><th>総客数</th><th>KPI</th></tr></thead><tbody>"+tr+"</tbody></table></div>"+
+    "<div class='slbl'>累積 店舗別ランキング</div>"+
+    "<div style='margin-bottom:11px;'>"+bRank(fs)+"</div>"+
+    "<div class='slbl'>累積 メニュー別（降順）/ 集計</div>"+
+    "<div class='bgr'><div>"+bMenu(ml,ts)+"</div><div><div class='card bp'>"+bSum(agg.bl,agg.ll,agg.rl)+"</div></div></div>";
+  /* 累積タブのクリックイベント */
+  var pc=document.getElementById("p-c");
+  pc.addEventListener("click",function(e){
+    var si=e.target.getAttribute("data-si");if(si!==null){openDrillStore(parseInt(si));return;}
+    var mi=e.target.getAttribute("data-mi");if(mi!==null){openDrillMenu(parseInt(mi));return;}
+  });
+}
+/* ===== MONTHLY ===== */
+function rMon(){
+  function mCard(list,label){
+    if(!list.length)return "<div class='card mc'><div class='mtt'>"+label+"（データなし）</div><div style='font-size:12px;color:var(--gg3);padding:18px;text-align:center'>CSVをフォルダに追加してください</div></div>";
+    var ts=0,tc=0,okw=0;
+    for(var i=0;i<list.length;i++){ts+=list[i].ts;tc+=list[i].tc;if(list[i].ovr>=KPI)okw++;}
+    var ov=tc>0?ts/tc*100:0,ok=ov>=KPI;
+    var tr="";for(var i=0;i<list.length;i++)tr+=trRow(list[i],i);
+    return "<div class='card mc'><div class='mtt'>"+label+"（"+list.length+"週）</div>"+
+      "<div class='mkr'>"+
+        "<div class='mk'><div class='mklb'>注文率</div><div class='mkv' style='color:"+(ok?"var(--green)":"var(--red)")+"'>"+ov.toFixed(2)+"<span class='mku'>%</span></div></div>"+
+        "<div class='mk'><div class='mklb'>販売数</div><div class='mkv' style='color:var(--sp)'>"+ts.toLocaleString()+"<span class='mku'>食</span></div></div>"+
+        "<div class='mk'><div class='mklb'>KPI達成</div><div class='mkv' style='color:"+(okw===list.length?"var(--green)":"var(--red)")+"'>"+okw+"<span class='mku'>/"+list.length+"W</span></div></div>"+
+      "</div>"+
+      "<table class='trt'><thead><tr><th>週</th><th>期間</th><th>注文率</th><th>販売数</th><th>総客数</th><th>KPI</th></tr></thead><tbody>"+tr+"</tbody></table></div>";
+  }
+  /* フィルター後の週別集計で月別を構築 */
+  var m3=[],m4=[];
+  for(var i=0;i<ALL_WK.length;i++){
+    var d=ALL_WK[i];
+    var wfs=apF(d.stores);
+    var wts=0,wtc=0;for(var ii=0;ii<wfs.length;ii++){wts+=wfs[ii].sales;wtc+=wfs[ii].cust;}
+    var wd={wl:d.wl,ovr:wtc>0?wts/wtc*100:0,ts:wts,tc:wtc};
+    (d.mon===4?m4:m3).push(wd);
+  }
+  var comp="";
+  if(m3.length&&m4.length){
+    var ts3=0,tc3=0,ts4=0,tc4=0;
+    for(var i=0;i<m3.length;i++){ts3+=m3[i].ts;tc3+=m3[i].tc;}
+    for(var i=0;i<m4.length;i++){ts4+=m4[i].ts;tc4+=m4[i].tc;}
+    var r3=tc3>0?ts3/tc3*100:0,r4=tc4>0?ts4/tc4*100:0,df=r4-r3,up=df>=0;
+    comp="<div class='nb' style='margin-bottom:10px;'>&#x1F4CA; 3月平均 "+r3.toFixed(2)+"% → 4月平均 "+r4.toFixed(2)+"% "+(up?"▲":"▼")+Math.abs(df).toFixed(2)+"%（"+(up?"改善":"悪化")+"）</div>";
+  }
+  document.getElementById("p-m").innerHTML=comp+"<div class='mgr'>"+mCard(m3,"3月")+mCard(m4,"4月")+"</div>";
+}
+/* ===== MO比較 ===== */
+function rMO(){
+  var moD={sales:0,cust:0,stores:{}},poD={sales:0,cust:0,stores:{}};
+  for(var i=0;i<ALL_WK.length;i++){
+    var d=ALL_WK[i];
+    for(var j=0;j<d.stores.length;j++){
+      var s=d.stores[j],tg=s.mo==="MO"?moD:poD;
+      tg.sales+=s.sales;tg.cust+=s.cust;
+      if(!tg.stores[s.name])tg.stores[s.name]={sales:0,cust:0};
+      tg.stores[s.name].sales+=s.sales;tg.stores[s.name].cust+=s.cust;
+    }
+  }
+  function moCard(data,label,isMo){
+    var ov=data.cust>0?data.sales/data.cust*100:0,ok=ov>=KPI;
+    var sl=[];for(var n in data.stores){var s=data.stores[n];sl.push({name:n,sales:s.sales,rate:s.cust>0?s.sales/s.cust*100:0});}
+    sl.sort(function(a,b){return b.rate-a.rate;});
+    var rh="";
+    for(var i=0;i<sl.length;i++){
+      var s=sl[i],ok2=s.rate>=KPI,fc=ok2?"var(--green)":"var(--red)";
+      var bp=Math.min(s.rate/MXR*100,100),kp=KPI/MXR*100;
+      rh+="<div style='display:grid;grid-template-columns:1fr 110px 54px;align-items:center;gap:5px;padding:3px 0;border-bottom:1px solid #F0F2F5;'>"+
+        "<div style='font-size:10px;font-weight:700'>"+s.name+"</div>"+
+        "<div class='bw'><div class='bt'><div class='bf' style='width:"+bp+"%;background:"+fc+"'></div></div><div class='kln' style='left:"+kp+"%'></div></div>"+
+        "<div style='font-size:10px;font-weight:700;text-align:right;color:"+fc+"'>"+s.rate.toFixed(2)+"%</div>"+
+      "</div>";
+    }
+    return "<div class='card mo-c'><div class='mo-t "+(isMo?"mob":"pop")+"'>"+label+"（"+sl.length+"店）</div>"+
+      "<div style='display:flex;gap:14px;margin-bottom:10px;'>"+
+        "<div><div style='font-size:9px;color:var(--gg2);font-weight:700'>注文率</div><div style='font-size:28px;font-weight:900;color:"+(ok?"var(--green)":"var(--red)")+"'>"+ov.toFixed(2)+"<span style='font-size:13px;color:var(--gg2)'>%</span></div></div>"+
+        "<div><div style='font-size:9px;color:var(--gg2);font-weight:700'>販売数</div><div style='font-size:28px;font-weight:900;color:var(--sp)'>"+data.sales.toLocaleString()+"<span style='font-size:11px;color:var(--gg2)'>食</span></div></div>"+
+        "<div><div style='font-size:9px;color:var(--gg2);font-weight:700'>KPI</div><div style='font-size:22px;font-weight:900;color:"+(ok?"var(--green)":"var(--red)")+'">'+(ok?"達成":"未達")+"</div></div>"+
+      "</div>"+rh+"</div>";
+  }
+  var comp="";
+  if(moD.cust>0&&poD.cust>0){
+    var rm=moD.sales/moD.cust*100,rp=poD.sales/poD.cust*100,df=rm-rp,up=df>=0;
+    comp="<div class='nb' style='margin-bottom:10px;'>&#x1F4CA; MobileOrder "+rm.toFixed(2)+"% vs 季節メニューPOP "+rp.toFixed(2)+"% 差："+(up?"▲":"▼")+Math.abs(df).toFixed(2)+"%</div>";
+  }
+  document.getElementById("p-mo").innerHTML=comp+"<div class='mog'>"+moCard(moD,"&#x1F4F1; MobileOrder",true)+moCard(poD,"&#x1F4CB; 季節メニューPOP",false)+"</div>";
+}
+/* ===== INIT: GitHub Pages - data/フォルダからCSVをfetch ===== */
+(function(){
+  /* サイドバーボタン：data属性ベースのイベント委任 */
+  document.querySelector(".sb").addEventListener("click",function(e){
+    var b=e.target;
+    var f=b.getAttribute("data-f"),v=b.getAttribute("data-v"),wk=b.getAttribute("data-wk");
+    if(f&&v){
+      F[f]=v;
+      document.querySelectorAll(".sb-btn[data-f='"+f+"']").forEach(function(x){x.classList.toggle("a",x.getAttribute("data-v")===v);});
+      renderAll();return;
+    }
+    if(wk){CW=wk;rSbW();renderAll();return;}
+  });
+  /* タブ */
+  document.querySelector(".tab-bar").addEventListener("click",function(e){
+    var t=e.target.getAttribute("data-tab");
+    if(!t)return;
+    ["w","m","mo"].forEach(function(x){
+      document.getElementById("p-"+x).style.display=x===t?"block":"none";
+      document.getElementById("t-"+x).className="tab"+(x===t?" a":"");
+    });
+  });
+  /* モーダル */
+  document.getElementById("dd-ov").addEventListener("click",function(e){if(e.target===this)this.classList.remove("s");});
+  document.getElementById("dd-x").addEventListener("click",function(){document.getElementById("dd-ov").classList.remove("s");});
+
+  /* === CSV一覧をfetch（data/index.json）して各CSVを読み込む === */
+  document.getElementById("ld").style.display="flex";
+
+  function loadCSV(filename){
+    return fetch("data/"+filename)
+      .then(function(r){
+        if(!r.ok)throw new Error(filename+" not found");
+        return r.arrayBuffer();
+      })
+      .then(function(buf){
+        /* Shift-JIS → UTF-8 デコード */
+        var dec;
+        try{ dec=new TextDecoder("shift-jis").decode(buf); }
+        catch(e){ dec=new TextDecoder("utf-8").decode(buf); }
+        return{filename:filename,content:dec};
+      });
+  }
+
+  /* data/index.json からCSVファイル一覧を取得 */
+  fetch("data/index.json")
+    .then(function(r){
+      if(!r.ok)throw new Error("index.json not found");
+      return r.json();
+    })
+    .then(function(list){
+      /* list: ["week1.csv","week2.csv",...] */
+      var files=Array.isArray(list)?list:[];
+      if(!files.length){
+        document.getElementById("ld").style.display="none";
+        document.getElementById("nodata").style.display="flex";
+        return;
+      }
+      return Promise.all(files.map(loadCSV));
+    })
+    .then(function(items){
+      if(!items)return;
+      var seen={};
+      items.forEach(function(item){
+        if(!item)return;
+        var rows=pCSV(item.content);
+        var d=exData(rows,item.filename);
+        if(!d||seen[d.wk])return;
+        seen[d.wk]=1;ALL_WK.push(d);
+      });
+      ALL_WK.sort(function(a,b){return a.wk<b.wk?-1:a.wk>b.wk?1:0;});
+      document.getElementById("ld").style.display="none";
+      if(ALL_WK.length){CW=ALL_WK[ALL_WK.length-1].wk;renderAll();}
+      else{document.getElementById("nodata").style.display="flex";}
+    })
+    .catch(function(err){
+      document.getElementById("ld").style.display="none";
+      document.getElementById("nodata").style.display="flex";
+      console.warn("データ読込エラー:",err.message);
+    });
+})();
+</script>
+</body>
+</html>
