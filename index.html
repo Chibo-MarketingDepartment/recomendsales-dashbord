@@ -881,7 +881,7 @@ function renderWeek(){
   // layout
   document.getElementById('tab-week').innerHTML=
     infoHtml+
-    htmlAlert(fs)+
+    htmlAlert(fs, ml, prevD?applyFilter(prevD.stores):null, null)+
     (fl?'<div class="filter-tag on">&#x1F50D; '+fl+'<span class="filter-clr" id="btn-clr">クリア</span></div>':'')+
     htmlKPI(fs,ts,tc,prevTs,prevOvr)+
     // Charts (2col)
