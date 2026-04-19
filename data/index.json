@@ -1,5 +1,10 @@
-[
-  "week1.csv",
-  "week2.csv",
-  "week3.csv"
-]
+{
+  "sales": [
+    "202603.csv",
+    "20260412.csv"
+  ],
+  "customers": [
+    "202603.csv",
+    "20260418.csv"
+  ]
+}
