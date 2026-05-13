@@ -15,15 +15,15 @@ body{font-family:'Meiryo UI','メイリオ',sans-serif;background:var(--c3);colo
 .hdr-sub{font-size:9px;color:var(--n3);}
 .upd-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;font-family:inherit;font-size:10px;font-weight:700;padding:5px 12px;border-radius:4px;cursor:pointer;flex-shrink:0;}
 .upd-btn:hover{background:rgba(255,255,255,.22);}
-.fbar{height:var(--fh);background:#fff;border-bottom:1px solid var(--n1);display:flex;align-items:center;padding:0 14px;gap:6px;position:sticky;top:var(--hh);z-index:280;overflow-x:auto;}
-.fbar::-webkit-scrollbar{height:0;}
+.fbar{height:var(--fh);background:#fff;border-bottom:1px solid var(--n1);display:flex;align-items:center;padding:0 14px;gap:6px;position:sticky;top:var(--hh);z-index:500;overflow:visible;}
+.fbar::-webkit-scrollbar{display:none;}
 .fsep{width:1px;height:22px;background:var(--n1);flex-shrink:0;}
 .dd{position:relative;flex-shrink:0;}
 .ddbtn{display:flex;align-items:center;gap:5px;padding:5px 11px;border:1.5px solid var(--n1);border-radius:5px;background:#fff;font-family:inherit;font-size:11px;font-weight:700;color:var(--c1);cursor:pointer;white-space:nowrap;transition:.12s;}
 .ddbtn:hover{border-color:var(--c2);}
 .ddbtn.act{border-color:var(--c2);background:var(--b2);color:var(--c2);}
 .ddarrow{font-size:8px;color:var(--n3);}
-.ddmenu{display:none;position:absolute;top:calc(100% + 4px);left:0;background:#fff;border:1px solid var(--n1);border-radius:7px;box-shadow:0 6px 20px rgba(0,0,0,.12);z-index:500;min-width:150px;padding:4px 0;max-height:320px;overflow-y:auto;}
+.ddmenu{display:none;position:absolute;top:calc(100% + 4px);left:0;background:#fff;border:1px solid var(--n1);border-radius:7px;box-shadow:0 6px 20px rgba(0,0,0,.12);z-index:9999;min-width:150px;padding:4px 0;max-height:320px;overflow-y:auto;}
 .ddmenu.on{display:block;}
 .ddmenu.wide{min-width:220px;}
 .dditem{display:block;width:100%;text-align:left;padding:7px 13px;border:none;background:none;font-family:inherit;font-size:11px;font-weight:600;color:var(--n2);cursor:pointer;transition:.1s;white-space:nowrap;}
@@ -177,6 +177,15 @@ body{font-family:'Meiryo UI','メイリオ',sans-serif;background:var(--c3);colo
   <button class="upd-btn" id="upd-btn">📝 データ更新</button>
 </div>
 <div class="fbar" id="fbar">
+  <div class="dd" id="tab-dd">
+    <button class="ddbtn" id="tab-dd-btn" style="font-weight:800;color:var(--c1);border-color:var(--c2)">📅 週次 <span class="ddarrow">▼</span></button>
+    <div class="ddmenu" id="tab-dd-menu">
+      <button class="dditem on" data-tab-sel="week">📅 週次</button>
+      <button class="dditem" data-tab-sel="month">🗓 月次</button>
+      <button class="dditem" data-tab-sel="season">🌸 季節</button>
+    </div>
+  </div>
+  <div class="fsep"></div>
   <div class="dd" id="dd-wk">
     <button class="ddbtn" id="dd-wk-btn">📋 週 <span class="ddarrow">▼</span></button>
     <div class="ddmenu wide" id="dd-wk-menu"></div>
@@ -202,15 +211,6 @@ body{font-family:'Meiryo UI','メイリオ',sans-serif;background:var(--c3);colo
     </div>
   </div>
   <button class="fclr" id="fclr">✕ クリア</button>
-  <div class="fsep"></div>
-  <div class="dd" id="tab-dd" style="margin-left:auto">
-    <button class="ddbtn" id="tab-dd-btn">📅 週次 <span class="ddarrow">▼</span></button>
-    <div class="ddmenu" id="tab-dd-menu" style="right:0;left:auto">
-      <button class="dditem on" data-tab-sel="week">📅 週次</button>
-      <button class="dditem" data-tab-sel="month">🗓 月次</button>
-      <button class="dditem" data-tab-sel="season">🌸 季節</button>
-    </div>
-  </div>
 </div>
 <div class="ov" id="drill-ov">
   <div class="modal">
