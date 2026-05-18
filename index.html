@@ -501,25 +501,31 @@ function htmlTrend(series,sea){
 function drillStore(idx){
   var store=DST[idx];if(!store)return;
   var sea=curSea(),KPI=kpiOf(sea),sm={},cu=0;
-  ALL_WK.forEach(function(wd){var s=wd.stores.filter(function(x){return x.name===store;})[0];if(!s)return;cu+=s.cust;Object.keys(s.menus).forEach(function(mn){sm[mn]=(sm[mn]||0)+s.menus[mn];});});
+  var isCum=CW==='__cum';
+  var wks=isCum?ALL_WK:ALL_WK.filter(function(w){return w.wk===CW;});
+  var periodLabel=isCum?'累積':'選択週';
+  wks.forEach(function(wd){applyF(wd.stores).filter(function(x){return x.name===store;}).forEach(function(s){cu+=s.cust;Object.keys(s.menus).forEach(function(mn){sm[mn]=(sm[mn]||0)+s.menus[mn];});});});
   var items=Object.keys(sm).map(function(mn){return{name:mn,sales:sm[mn],rate:cu>0?sm[mn]/cu*100:0};}).sort(function(a,b){return b.rate-a.rate;});
   var mx=items.length?Math.max(items[0].rate,KPI*2):KPI*2,kp=KPI/mx*100;
   var rows=items.map(function(it){var ok=it.rate>=KPI,fc=ok?'var(--g1)':'var(--r1)',bw=Math.min(it.rate/mx*100,100);return '<div class="mrow" style="grid-template-columns:minmax(0,1fr) 130px 56px 44px"><div class="mnm">'+it.name+'</div><div class="mbw"><div class="mbt"><div class="mbf" style="width:'+bw+'%;background:'+fc+'"></div></div><div class="mkl" style="left:'+kp+'%"></div></div><div class="mrv" style="color:'+fc+'">'+it.rate.toFixed(2)+'%</div><div class="msv">'+it.sales+'食</div></div>';}).join('');
   document.getElementById('d-icon').textContent='🏪';
-  document.getElementById('d-title').textContent=store+' — メニュー別注文率（累積）';
+  document.getElementById('d-title').textContent=store+' — メニュー別注文率（'+periodLabel+'）';
   document.getElementById('d-body').innerHTML='<div class="minfo">総客数: '+cu.toLocaleString()+'名　KPI: '+KPI+'%</div><div class="mth" style="grid-template-columns:minmax(0,1fr) 130px 56px 44px"><span>メニュー名</span><span>注文率グラフ</span><span>注文率</span><span>販売数</span></div>'+rows;
   document.getElementById('drill-ov').classList.add('on');
 }
 function drillMenu(idx){
   var mn=DMN[idx];if(!mn)return;
   var sea=curSea(),KPI=kpiOf(sea),sm={};
-  ALL_WK.forEach(function(wd){wd.stores.forEach(function(s){if(!s.menus[mn])return;if(!sm[s.name])sm[s.name]={sales:0,cust:0,area:s.area};sm[s.name].sales+=s.menus[mn];sm[s.name].cust+=s.cust;});});
+  var isCum=CW==='__cum';
+  var wks=isCum?ALL_WK:ALL_WK.filter(function(w){return w.wk===CW;});
+  var periodLabel=isCum?'累積':'選択週';
+  wks.forEach(function(wd){applyF(wd.stores).forEach(function(s){if(!s.menus[mn])return;if(!sm[s.name])sm[s.name]={sales:0,cust:0,area:s.area};sm[s.name].sales+=s.menus[mn];sm[s.name].cust+=s.cust;});});
   var items=Object.keys(sm).map(function(sn){var d=sm[sn];return{name:sn,sales:d.sales,cust:d.cust,rate:d.cust>0?d.sales/d.cust*100:0,area:d.area};}).sort(function(a,b){return b.rate-a.rate;});
   var mx=items.length?Math.max(items[0].rate,KPI*2):KPI*2,kp=KPI/mx*100;
   var rows=items.map(function(it){var ok=it.rate>=KPI,fc=ok?'var(--g1)':'var(--r1)',bw=Math.min(it.rate/mx*100,100);return '<div class="mrow" style="grid-template-columns:minmax(0,1fr) 50px 130px 56px 44px"><div class="mnm">'+it.name+'</div><div style="font-size:8px;text-align:center;color:var(--n2)">'+it.area+'</div><div class="mbw"><div class="mbt"><div class="mbf" style="width:'+bw+'%;background:'+fc+'"></div></div><div class="mkl" style="left:'+kp+'%"></div></div><div class="mrv" style="color:'+fc+'">'+it.rate.toFixed(2)+'%</div><div class="msv">'+it.sales+'食</div></div>';}).join('');
   document.getElementById('d-icon').textContent='🍽';
-  document.getElementById('d-title').textContent=mn+' — 店舗別注文率（累積）';
-  document.getElementById('d-body').innerHTML='<div class="minfo">全'+ALL_WK.length+'週累積　KPI: '+KPI+'%</div><div class="mth" style="grid-template-columns:minmax(0,1fr) 50px 130px 56px 44px"><span>店舗名</span><span>所属</span><span>注文率グラフ</span><span>注文率</span><span>販売数</span></div>'+rows;
+  document.getElementById('d-title').textContent=mn+' — 店舗別注文率（'+periodLabel+'）';
+  document.getElementById('d-body').innerHTML='<div class="minfo">'+periodLabel+'　KPI: '+KPI+'%</div><div class="mth" style="grid-template-columns:minmax(0,1fr) 50px 130px 56px 44px"><span>店舗名</span><span>所属</span><span>注文率グラフ</span><span>注文率</span><span>販売数</span></div>'+rows;
   document.getElementById('drill-ov').classList.add('on');
 }
 function bindDrill(pid){var p=document.getElementById(pid);if(!p)return;p.addEventListener('click',function(e){var si=e.target.getAttribute('data-si');if(si!==null){drillStore(parseInt(si));return;}var mi=e.target.getAttribute('data-mi');if(mi!==null){drillMenu(parseInt(mi));return;}});}
