@@ -306,13 +306,15 @@ function listFiles(path){
     });
 }
 function normMenu(nm,sea){nm=nm.trim();var f=sea.menus.filter(function(m){return nm.indexOf(m.raw)>=0;});return f.length?f[0].disp:null;}
+var STORE_ALIAS={"ヨドバシHD池袋ビル支店":"リンクス池袋支店"};
+function normStore(s){return STORE_ALIAS[s]||s;}
 function parseSales(text,sea){
   var rows=parseCSV(text),map={};
   for(var i=1;i<rows.length;i++){
     var c=rows[i];if(c.length<21||!c[0].trim())continue;
     var an=c[6].trim();if(!isTarget(an))continue;
     var nm=normMenu(c[17].trim(),sea);if(!nm)continue;
-    var date=c[0].trim(),store=c[10].trim(),youbi=c[2].trim(),area=getArea(an),sales=parseFloat(c[20])||0;
+    var date=c[0].trim(),store=normStore(c[10].trim()),youbi=c[2].trim(),area=getArea(an),sales=parseFloat(c[20])||0;
     var key=store+'|'+date;
     if(!map[key])map[key]={store:store,area:area,mo:getMO(store),date:date,youbi:youbi,menus:{}};
     map[key].menus[nm]=(map[key].menus[nm]||0)+sales;
@@ -325,7 +327,7 @@ function parseCust(text){
     var c=rows[i];if(c.length<21||!c[6].trim())continue;
     if(c[13].trim()!=='計')continue;
     if(!isTarget(c[3].trim()))continue;
-    map[c[5].trim()+'|'+c[6].trim()]=parseInt(c[20])||0;
+    map[normStore(c[5].trim())+'|'+c[6].trim()]=parseInt(c[20])||0;
   }
   return map;
 }
