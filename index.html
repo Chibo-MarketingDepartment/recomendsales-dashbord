@@ -684,7 +684,16 @@ function loadAllSeasons(){
     ALL_WK=[];
     SEASONS.forEach(function(sea){
       var salesMap={};
-      r[0].forEach(function(t){var m=parseSales(t,sea);Object.keys(m).forEach(function(k){if(!salesMap[k]){salesMap[k]=m[k];return;}Object.keys(m[k].menus).forEach(function(mn){salesMap[k].menus[mn]=(salesMap[k].menus[mn]||0)+m[k].menus[mn];});});});
+      var ps=sea.period[0].replace(/-/g,'/'),pe=sea.period[1].replace(/-/g,'/');
+      r[0].forEach(function(t){
+        var m=parseSales(t,sea);
+        Object.keys(m).forEach(function(k){
+          var date=m[k].date;
+          if(date<ps||date>pe)return;
+          if(!salesMap[k]){salesMap[k]=m[k];return;}
+          Object.keys(m[k].menus).forEach(function(mn){salesMap[k].menus[mn]=(salesMap[k].menus[mn]||0)+m[k].menus[mn];});
+        });
+      });
       buildWeeks(salesMap,custMap,sea).forEach(function(w){ALL_WK.push(w);});
     });
     ALL_WK.sort(function(a,b){return a.wk<b.wk?-1:a.wk>b.wk?1:0;});
