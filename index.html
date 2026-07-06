@@ -696,7 +696,10 @@ function loadAllSeasons(){
       });
       buildWeeks(salesMap,custMap,sea).forEach(function(w){ALL_WK.push(w);});
     });
-    ALL_WK.sort(function(a,b){return a.wk<b.wk?-1:a.wk>b.wk?1:0;});
+    // 同一週キーが複数シーズンにまたがる場合、後のシーズン（新しい季節）を優先
+    var wkDedup={};
+    ALL_WK.forEach(function(w){wkDedup[w.wk]=w;});
+    ALL_WK=Object.keys(wkDedup).sort().map(function(k){return wkDedup[k];});
     if(ALL_WK.length)CW=ALL_WK[ALL_WK.length-1].wk;
     renderAll();
   }).catch(function(err){
