@@ -270,6 +270,7 @@ body{font-family:'BIZ UDPGothic','Meiryo UI','メイリオ',sans-serif;backgroun
 </div>
 <script>
 var REPO='Chibo-MarketingDepartment/recomendsales-dashbord';
+var PAGES_BASE='https://chibo-marketingdepartment.github.io/recomendsales-dashbord';
 var MOS={"有楽町ビックカメラ支店":1,"舞 イクスピアリ店":1,"名代JO-TERRACE OSAKA店":1,"曽根崎支店":1};
 var SEASONS=[],ALL_WK=[],CW=null,F={area:'all',mo:'all'};
 var CUR_MON=null,CUR_SEA=null,DST=[],DMN=[];
@@ -302,7 +303,7 @@ function listFiles(path){
     .then(function(items){
       if(!Array.isArray(items))throw new Error('not array');
       return items.filter(function(f){return f.type==='file'&&f.name.endsWith('.csv');})
-                  .map(function(f){return{name:f.name,url:f.download_url};});
+                  .map(function(f){return{name:f.name,url:PAGES_BASE+'/'+path+'/'+f.name};});
     });
 }
 function normMenu(nm,sea){nm=nm.trim();var f=sea.menus.filter(function(m){return nm.indexOf(m.raw)>=0;});return f.length?f[0].disp:null;}
