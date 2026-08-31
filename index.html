@@ -273,7 +273,7 @@ var REPO='Chibo-MarketingDepartment/recomendsales-dashbord';
 var PAGES_BASE='https://chibo-marketingdepartment.github.io/recomendsales-dashbord';
 var MOS={"有楽町ビックカメラ支店":1,"舞 イクスピアリ店":1,"名代JO-TERRACE OSAKA店":1,"曽根崎支店":1};
 var SEASONS=[],ALL_WK=[],CW=null,F={area:'all',mo:'all'};
-var CUR_MON=null,CUR_SEA=null,DST=[],DMN=[];
+var CUR_MON=null,CUR_SEA=null,DST=[],DMN=[],CUR_TAB='week';
 
 function getArea(n){if(!n)return 'その他';if(n.indexOf('FC')>=0)return 'FC';if(n.indexOf('第1')>=0)return '第1エリア';if(n.indexOf('第2')>=0)return '第2エリア';if(n.indexOf('第3')>=0)return '第3エリア';if(n.indexOf('第4')>=0)return '第4エリア';return 'その他';}
 function getMO(s){return MOS[s]?'MO':'POP';}
@@ -503,20 +503,21 @@ function htmlTrend(series,sea){
 
 function drillStore(idx){
   var store=DST[idx];if(!store)return;
-  var sea=curSea(),KPI=kpiOf(sea),sm={},cu=0;
-  var isCum=CW==='__cum';
-  var seaMode=false;
-  var wks;
-  if(sea&&!isCum){
-    var ps=sea.period[0].replace(/-/g,'/'),pe=sea.period[1].replace(/-/g,'/');
-    var seaWks=ALL_WK.filter(function(w){return w.wk>=ps&&w.wk<=pe&&w.season.id===sea.id;});
-    var cwInSea=seaWks.some(function(w){return w.wk===CW;});
-    if(!cwInSea&&seaWks.length){wks=seaWks;seaMode=true;}
-    else wks=isCum?ALL_WK:ALL_WK.filter(function(w){return w.wk===CW;});
-  } else {
-    wks=isCum?ALL_WK:ALL_WK.filter(function(w){return w.wk===CW;});
+  var KPI,wks,periodLabel,sea;
+  if(typeof CUR_TAB!=='undefined'&&CUR_TAB==='season'&&CUR_SEA){
+    sea=SEASONS.filter(function(s){return s.id===CUR_SEA;})[0];
+    if(sea){var ps=sea.period[0].replace(/-/g,'/'),pe=sea.period[1].replace(/-/g,'/');
+      wks=ALL_WK.filter(function(w){return w.wk>=ps&&w.wk<=pe&&w.season.id===sea.id;});
+      periodLabel='季節累計';KPI=sea.kpi;
+    }
   }
-  var periodLabel=seaMode?'季節累計':isCum?'累積':'選択週';
+  if(!wks){
+    sea=curSea();KPI=kpiOf(sea);
+    var isCum=CW==='__cum';
+    wks=isCum?ALL_WK:ALL_WK.filter(function(w){return w.wk===CW;});
+    periodLabel=isCum?'累積':'選択週';
+  }
+  var sm={},cu=0;
   wks.forEach(function(wd){applyF(wd.stores).filter(function(x){return x.name===store;}).forEach(function(s){cu+=s.cust;Object.keys(s.menus).forEach(function(mn){sm[mn]=(sm[mn]||0)+s.menus[mn];});});});
   var items=Object.keys(sm).map(function(mn){return{name:mn,sales:sm[mn],rate:cu>0?sm[mn]/cu*100:0};}).sort(function(a,b){return b.rate-a.rate;});
   var mx=items.length?Math.max(items[0].rate,KPI*2):KPI*2,kp=KPI/mx*100;
@@ -528,22 +529,22 @@ function drillStore(idx){
 }
 function drillMenu(idx){
   var mn=DMN[idx];if(!mn)return;
-  var sea=curSea(),KPI=kpiOf(sea),sm={};
-  var isCum=CW==='__cum';
-  // 季節タブの場合はシーズン全期間を対象にする
-  var seaMode=false;
-  var wks;
-  if(sea&&!isCum){
-    var ps=sea.period[0].replace(/-/g,'/'),pe=sea.period[1].replace(/-/g,'/');
-    var seaWks=ALL_WK.filter(function(w){return w.wk>=ps&&w.wk<=pe&&w.season.id===sea.id;});
-    // CWがシーズン期間外ならシーズン累計モード
-    var cwInSea=seaWks.some(function(w){return w.wk===CW;});
-    if(!cwInSea&&seaWks.length){wks=seaWks;seaMode=true;}
-    else wks=isCum?ALL_WK:ALL_WK.filter(function(w){return w.wk===CW;});
-  } else {
-    wks=isCum?ALL_WK:ALL_WK.filter(function(w){return w.wk===CW;});
+  var KPI,wks,periodLabel,sea;
+  if(CUR_TAB==='season'&&CUR_SEA){
+    sea=SEASONS.filter(function(s){return s.id===CUR_SEA;})[0];
+    if(sea){
+      var ps=sea.period[0].replace(/-/g,'/'),pe=sea.period[1].replace(/-/g,'/');
+      wks=ALL_WK.filter(function(w){return w.wk>=ps&&w.wk<=pe&&w.season.id===sea.id;});
+      periodLabel='季節累計';KPI=sea.kpi;
+    }
   }
-  var periodLabel=seaMode?'季節累計':isCum?'累積':'選択週';
+  if(!wks){
+    sea=curSea();KPI=kpiOf(sea);
+    var isCum=CW==='__cum';
+    wks=isCum?ALL_WK:ALL_WK.filter(function(w){return w.wk===CW;});
+    periodLabel=isCum?'累積':'選択週';
+  }
+  var sm={};
   wks.forEach(function(wd){applyF(wd.stores).forEach(function(s){if(!s.menus[mn])return;if(!sm[s.name])sm[s.name]={sales:0,cust:0,area:s.area};sm[s.name].sales+=s.menus[mn];sm[s.name].cust+=s.cust;});});
   var items=Object.keys(sm).map(function(sn){var d=sm[sn];return{name:sn,sales:d.sales,cust:d.cust,rate:d.cust>0?d.sales/d.cust*100:0,area:d.area};}).sort(function(a,b){return b.rate-a.rate;});
   var mx=items.length?Math.max(items[0].rate,KPI*2):KPI*2,kp=KPI/mx*100;
@@ -734,7 +735,6 @@ function loadAllSeasons(){
 }
 
 (function(){
-  var CUR_TAB='week';
   function switchTab(t){
     CUR_TAB=t;
     var labels={'week':'週次','month':'月次','season':'季節'};
