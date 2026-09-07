@@ -637,9 +637,10 @@ function loadAllSeasons(){
     var sFiles=res[0],cFiles=res[1];
     return Promise.all([Promise.all(sFiles.map(function(f){return fetchText(f.url);})),Promise.all(cFiles.map(function(f){return fetchText(f.url);}))]);
   }).then(function(r){
-    var custMap={};r[1].forEach(function(t){var m=parseCust(t,sea);Object.assign(custMap,m);});
     ALL_WK=[];
     SEASONS.forEach(function(sea){
+      // 季節ごとに客数マップを生成（対象店舗フィルタ適用）
+      var custMap={};r[1].forEach(function(t){var m=parseCust(t,sea);Object.assign(custMap,m);});
       var salesMap={};
       r[0].forEach(function(t){var m=parseSales(t,sea);Object.keys(m).forEach(function(k){if(!salesMap[k]){salesMap[k]=m[k];return;}Object.keys(m[k].menus).forEach(function(mn){salesMap[k].menus[mn]=(salesMap[k].menus[mn]||0)+m[k].menus[mn];});});});
       buildWeeks(salesMap,custMap,sea).forEach(function(w){ALL_WK.push(w);});
