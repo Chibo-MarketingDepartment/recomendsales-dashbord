@@ -519,7 +519,7 @@ function htmlSummary(fs,sea){
   var KPI=kpiOf(sea),hk=hasKPI(sea),al=aggByKey(fs,'area');
   var rows=al.map(function(b){
     var ok=hk&&b.rate>=KPI,fc=hk?(ok?'var(--g1)':'var(--r1)'):'var(--c2)';
-    var mxR=hk?KPI*2:(Math.max.apply(null,al.map(function(x){return x.rate;}))||5);
+    var alRates=al.map(function(x){return x.rate;});var mxR=hk?KPI*2:(alRates.length?Math.max.apply(null,alRates):5)||5;
     var bw=Math.min(b.rate/mxR*100,100),kw=hk?50:0;
     return '<div class="sr"><div class="stop"><span class="sn">'+b.name+'</span><span class="sv" style="color:'+fc+'">'+b.rate.toFixed(2)+'%</span></div><div class="sbb"><div class="sbf" style="width:'+bw+'%;background:'+fc+'"></div>'+(hk?'<div class="sbk" style="left:50%"></div>':'')+'</div><div class="ssb">'+b.sales.toLocaleString()+'食 / '+b.cnt+'店</div></div>';
   }).join('');
@@ -558,14 +558,16 @@ function drillMenu(idx){
 function bindDrill(pid){var p=document.getElementById(pid);if(!p)return;p.addEventListener('click',function(e){var si=e.target.getAttribute('data-si');if(si!==null){drillStore(parseInt(si));return;}var mi=e.target.getAttribute('data-mi');if(mi!==null){drillMenu(parseInt(mi));return;}});}
 
 function renderWeek(){
-  var sea=CW==='__cum'?SEASONS[SEASONS.length-1]:((ALL_WK.filter(function(w){return w.wk===CW;})[0]||ALL_WK[ALL_WK.length-1]||{}).season||SEASONS[SEASONS.length-1]);
+  try{
+  var _bw0=getBasicWks();var sea=CW==='__cum'?(_bw0[_bw0.length-1]||{}).season||SEASONS[0]:((_bw0.filter(function(w){return w.wk===CW;})[0]||_bw0[_bw0.length-1]||{}).season||SEASONS[0]);
   var isCum=CW==='__cum';
-  var d=isCum?null:ALL_WK.filter(function(w){return w.wk===CW;})[0]||ALL_WK[ALL_WK.length-1];
-  var prevD=d?(ALL_WK[ALL_WK.indexOf(d)-1]||null):null;
+  var _bwks=getBasicWks();
+  var d=isCum?null:_bwks.filter(function(w){return w.wk===CW;})[0]||_bwks[_bwks.length-1];
+  var prevD=d?(_bwks[_bwks.indexOf(d)-1]||null):null;
   var fs,ml,ts,tc,prevTs=null,prevOvr=null;
   if(isCum){
     var sM={},smC={};
-    ALL_WK.forEach(function(wd){applyF(wd.stores).forEach(function(s){if(!sM[s.name])sM[s.name]={area:s.area,mo:s.mo,sales:0,cust:0,menus:{}};sM[s.name].sales+=s.sales;sM[s.name].cust+=s.cust;Object.keys(s.menus).forEach(function(m){sM[s.name].menus[m]=(sM[s.name].menus[m]||0)+s.menus[m];});if(!smC[s.name])smC[s.name]={};Object.keys(s.menus).forEach(function(m){smC[s.name][m]=(smC[s.name][m]||0)+s.menus[m];});});});
+    basicWks.forEach(function(wd){applyF(wd.stores).forEach(function(s){if(!sM[s.name])sM[s.name]={area:s.area,mo:s.mo,sales:0,cust:0,menus:{}};sM[s.name].sales+=s.sales;sM[s.name].cust+=s.cust;Object.keys(s.menus).forEach(function(m){sM[s.name].menus[m]=(sM[s.name].menus[m]||0)+s.menus[m];});if(!smC[s.name])smC[s.name]={};Object.keys(s.menus).forEach(function(m){smC[s.name][m]=(smC[s.name][m]||0)+s.menus[m];});});});
     var cumSt=Object.keys(sM).map(function(n){var s=sM[n];s.name=n;s.rate=s.cust>0?s.sales/s.cust*100:0;return s;}).sort(function(a,b){return b.rate-a.rate;});
     fs=cumSt;ml=aggMenu(fs,smC);ts=0;tc=0;fs.forEach(function(s){ts+=s.sales;tc+=s.cust;});
   }else{var sw=wkSum(d);fs=sw.fs;ml=sw.ml;ts=sw.ts;tc=sw.tc;if(prevD){var ps=wkSum(prevD);prevTs=ps.ts;prevOvr=ps.ovr;}}
@@ -573,8 +575,8 @@ function renderWeek(){
   var basicWks=getBasicWks();
   var wkSeries=basicWks.map(function(wd,i){var ws=wkSum(wd);return{lbl:(i+1)+'W',val:ws.ovr,ovr:ws.ovr,ts:ws.ts,tc:ws.tc,wl:wd.wl};});
   var sSeries=basicWks.map(function(wd,i){var ws=wkSum(wd);return{lbl:(i+1)+'W',val:ws.ts};});
-  var KPI=kpiOf(sea);
   var infoHtml=isCum?'<div class="info-bar">累積表示（全'+ALL_WK.length+'週）</div>':'';
+  console.log('renderWeek: fs=',fs.length,'ts=',ts,'tc=',tc,'wkSeries=',wkSeries.length);
   document.getElementById('tab-week').innerHTML=
     infoHtml+htmlTopic(fs,ml,prevD?applyF(prevD.stores):null,sea)+
     htmlKPI(fs,ts,tc,sea,prevTs,prevOvr)+
@@ -591,6 +593,7 @@ function renderWeek(){
     '</div>'+
     (basicWks.length>=2?'<div class="sec">週次トレンド</div>'+htmlTrend(wkSeries,sea):'');
   bindDrill('tab-week');
+  }catch(e){console.error('renderWeek error:',e.message,e.stack);document.getElementById('tab-week').innerHTML='<div style="padding:20px;color:red">エラー: '+e.message+'</div>';}
 }
 
 function renderMonth(){
