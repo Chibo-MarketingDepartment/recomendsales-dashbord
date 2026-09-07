@@ -308,7 +308,7 @@ function parseSales(text,sea){
     var date=c[0].trim(),youbi=c[2].trim(),area=getArea(an),sales=parseFloat(c[20])||0;
     var key=store+'|'+date;
     if(!map[key])map[key]={store:store,area:area,mo:getMO(store),date:date,youbi:youbi,menus:{}};
-    map[key].menus[nm]=(map[key].menus[mn]||0)+sales;
+    map[key].menus[nm]=(map[key].menus[nm]||0)+sales;
   }
   return map;
 }
