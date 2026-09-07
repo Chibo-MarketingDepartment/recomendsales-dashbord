@@ -6,7 +6,7 @@
 <title>季節メニューおすすめ販売数速報｜千房グループ</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-:root{--c1:#1e2d45;--c2:#2563eb;--c3:#f8fafc;--g1:#059669;--g2:#d1fae5;--g3:#6ee7b7;--r1:#dc2626;--r2:#fee2e2;--r3:#fca5a5;--b2:#dbeafe;--n1:#e2e8f0;--n2:#64748b;--n3:#94a3b8;--hh:52px;--fh:46px;}
+:root{--c1:#1e2d45;--c2:#2563eb;--c3:#f8fafc;--g1:#059669;--g2:#d1fae5;--g3:#6ee7b7;--r1:#dc2626;--r2:#fee2e2;--r3:#fca5a5;--b2:#dbeafe;--n1:#e2e8f0;--n2:#64748b;--n3:#94a3b8;--hh:52px;--bzh:38px;--fh:46px;}
 html{font-size:13px;-webkit-text-size-adjust:100%;}
 body{font-family:'Meiryo UI','メイリオ',sans-serif;background:var(--c3);color:var(--c1);min-height:100vh;}
 .hdr{height:var(--hh);background:var(--c1);display:flex;align-items:center;padding:0 16px;gap:10px;position:sticky;top:0;z-index:300;box-shadow:0 2px 8px rgba(0,0,0,.2);}
@@ -15,7 +15,7 @@ body{font-family:'Meiryo UI','メイリオ',sans-serif;background:var(--c3);colo
 .hdr-sub{font-size:9px;color:var(--n3);}
 .upd-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;font-family:inherit;font-size:10px;font-weight:700;padding:5px 12px;border-radius:4px;cursor:pointer;flex-shrink:0;}
 .upd-btn:hover{background:rgba(255,255,255,.22);}
-.fbar{height:var(--fh);background:#fff;border-bottom:1px solid var(--n1);display:flex;align-items:center;padding:0 14px;gap:6px;position:sticky;top:calc(var(--hh) + var(--bzh));z-index:280;overflow-x:auto;}
+.fbar{height:var(--fh);background:#fff;border-bottom:1px solid var(--n1);display:flex;align-items:center;padding:0 14px;gap:6px;position:sticky;top:calc(var(--hh) + var(--bzh));z-index:280;overflow:visible;}
 .fbar::-webkit-scrollbar{height:0;}
 .fsep{width:1px;height:22px;background:var(--n1);flex-shrink:0;}
 .dd{position:relative;flex-shrink:0;}
@@ -23,7 +23,7 @@ body{font-family:'Meiryo UI','メイリオ',sans-serif;background:var(--c3);colo
 .ddbtn:hover{border-color:var(--c2);}
 .ddbtn.act{border-color:var(--c2);background:var(--b2);color:var(--c2);}
 .ddarrow{font-size:8px;color:var(--n3);}
-.ddmenu{display:none;position:absolute;top:calc(100% + 4px);left:0;background:#fff;border:1px solid var(--n1);border-radius:7px;box-shadow:0 6px 20px rgba(0,0,0,.12);z-index:500;min-width:150px;padding:4px 0;max-height:320px;overflow-y:auto;}
+.ddmenu{display:none;position:absolute;top:calc(100% + 4px);left:0;background:#fff;border:1px solid var(--n1);border-radius:7px;box-shadow:0 6px 20px rgba(0,0,0,.15);z-index:9999;min-width:150px;padding:4px 0;max-height:320px;overflow-y:auto;}
 .ddmenu.on{display:block;}
 .ddmenu.wide{min-width:220px;}
 .dditem{display:block;width:100%;text-align:left;padding:7px 13px;border:none;background:none;font-family:inherit;font-size:11px;font-weight:600;color:var(--n2);cursor:pointer;transition:.1s;white-space:nowrap;}
