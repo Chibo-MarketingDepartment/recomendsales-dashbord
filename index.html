@@ -323,6 +323,47 @@ function listFiles(path){
     });
 }
 function normMenu(nm,sea){nm=nm.trim();var f=sea.menus.filter(function(m){return nm.indexOf(m.raw)>=0;});return f.length?f[0].disp:null;}
+
+/* 全CSV全行を1回スキャンしてrawマップを作成 */
+function parseAllSalesRaw(texts){
+  var raw={}; // key=store|date → {store,area,mo,date,youbi,menus:{mn:sales}}
+  texts.forEach(function(text){
+    var rows=parseCSV(text);
+    for(var i=1;i<rows.length;i++){
+      var c=rows[i];if(c.length<21||!c[0].trim())continue;
+      var an=c[6].trim();if(!isTarget(an))continue;
+      var store=c[10].trim(),date=c[0].trim(),mn=c[17].trim(),youbi=c[2].trim();
+      var area=getArea(an),mo=getMO(store),sales=parseFloat(c[20])||0;
+      if(!sales)continue;
+      var key=store+'|'+date;
+      if(!raw[key])raw[key]={store:store,area:area,mo:mo,date:date,youbi:youbi,menus:{}};
+      raw[key].menus[mn]=(raw[key].menus[mn]||0)+sales;
+    }
+  });
+  return raw;
+}
+
+/* rawマップから季節フィルタを適用してsalesMapを生成 */
+function filterSalesForSeason(rawMap,sea){
+  var ps=sea.period[0].replace(/-/g,'/'),pe=sea.period[1].replace(/-/g,'/');
+  var seaStores=sea.stores&&sea.stores.length?sea.stores:null;
+  var map={};
+  Object.keys(rawMap).forEach(function(key){
+    var sd=rawMap[key];
+    if(sd.date<ps||sd.date>pe)return;
+    if(seaStores&&seaStores.indexOf(sd.store)<0)return;
+    // メニュー名正規化
+    var filteredMenus={};
+    Object.keys(sd.menus).forEach(function(mn){
+      var nm=normMenu(mn,sea);
+      if(!nm)return;
+      filteredMenus[nm]=(filteredMenus[nm]||0)+sd.menus[mn];
+    });
+    if(!Object.keys(filteredMenus).length)return;
+    map[key]={store:sd.store,area:sd.area,mo:sd.mo,date:sd.date,youbi:sd.youbi,menus:filteredMenus};
+  });
+  return map;
+}
 function parseSales(text,sea){
   var rows=parseCSV(text),map={};
   var seaStores=sea&&sea.stores?sea.stores:null;
@@ -341,7 +382,7 @@ function parseSales(text,sea){
 }
 function parseCust(text,sea){
   var rows=parseCSV(text),map={};
-  var seaStores=sea&&sea.stores?sea.stores:null;
+  var seaStores=sea&&sea.stores&&sea.stores.length?sea.stores:null;
   for(var i=1;i<rows.length;i++){
     var c=rows[i];if(c.length<21||!c[6].trim())continue;
     if(c[13].trim()!=='計')continue;
@@ -668,22 +709,43 @@ function loadAllSeasons(){
   document.getElementById('ld').style.display='flex';
   Promise.all([listFiles('data/sales'),listFiles('data/customers')]).then(function(res){
     var sFiles=res[0],cFiles=res[1];
-    return Promise.all([Promise.all(sFiles.map(function(f){return fetchText(f.url);})),Promise.all(cFiles.map(function(f){return fetchText(f.url);}))]);
+    return Promise.all([
+      Promise.all(sFiles.map(function(f){return fetchText(f.url);})),
+      Promise.all(cFiles.map(function(f){return fetchText(f.url);}))
+    ]);
   }).then(function(r){
+    var salesTexts=r[0], custTexts=r[1];
+    // 販売実績: 全CSV全行を1回スキャン
+    var rawSalesMap=parseAllSalesRaw(salesTexts);
+    // 客数マップ: 全CSV×フィルタなしで1回作成
+    var fullCustMap={};
+    custTexts.forEach(function(t){
+      var m=parseCust(t,null);
+      Object.assign(fullCustMap,m);
+    });
     ALL_WK=[];
     SEASONS.forEach(function(sea){
-      // 季節ごとに客数マップを生成（対象店舗フィルタ適用）
-      var custMap={};r[1].forEach(function(t){var m=parseCust(t,sea);Object.assign(custMap,m);});
-      var salesMap={};
-      r[0].forEach(function(t){var m=parseSales(t,sea);Object.keys(m).forEach(function(k){if(!salesMap[k]){salesMap[k]=m[k];return;}Object.keys(m[k].menus).forEach(function(mn){salesMap[k].menus[mn]=(salesMap[k].menus[mn]||0)+m[k].menus[mn];});});});
+      // 対象店舗フィルタが必要な季節はfullCustMapをフィルタ
+      var custMap;
+      if(sea.stores&&sea.stores.length){
+        custMap={};
+        var st=sea.stores;
+        Object.keys(fullCustMap).forEach(function(k){
+          var sn=k.split('|')[0];
+          if(st.indexOf(sn)>=0)custMap[k]=fullCustMap[k];
+        });
+      } else {
+        custMap=fullCustMap;
+      }
+      var salesMap=filterSalesForSeason(rawSalesMap,sea);
       buildWeeks(salesMap,custMap,sea).forEach(function(w){ALL_WK.push(w);});
     });
     ALL_WK.sort(function(a,b){return a.wk<b.wk?-1:a.wk>b.wk?1:0;});
-    if(ALL_WK.length)CW=ALL_WK[ALL_WK.length-1].wk;
+    var basicWks=getBasicWks();
+    if(basicWks.length)CW=basicWks[basicWks.length-1].wk;
     renderAll();
   }).catch(function(err){
     console.warn('load error:',err.message||err);
-    console.warn('stack:',err.stack||'');
     document.getElementById('ld').style.display='none';
     document.getElementById('nodata').style.display='block';
   });
