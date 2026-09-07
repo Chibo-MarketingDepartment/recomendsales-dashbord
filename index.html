@@ -501,6 +501,7 @@ function renderWeek(){
     var cumSt=Object.keys(sM).map(function(n){var s=sM[n];s.name=n;s.rate=s.cust>0?s.sales/s.cust*100:0;return s;}).sort(function(a,b){return b.rate-a.rate;});
     fs=cumSt;ml=aggMenu(fs,smC);ts=0;tc=0;fs.forEach(function(s){ts+=s.sales;tc+=s.cust;});
   }else{var sw=wkSum(d);fs=sw.fs;ml=sw.ml;ts=sw.ts;tc=sw.tc;if(prevD){var ps=wkSum(prevD);prevTs=ps.ts;prevOvr=ps.ovr;}}
+  var hk=hasKPI(sea),KPI=kpiOf(sea);
   var wkSeries=ALL_WK.map(function(wd,i){var ws=wkSum(wd);return{lbl:(i+1)+'W',val:ws.ovr,ovr:ws.ovr,ts:ws.ts,tc:ws.tc,wl:wd.wl};});
   var sSeries=ALL_WK.map(function(wd,i){var ws=wkSum(wd);return{lbl:(i+1)+'W',val:ws.ts};});
   var KPI=kpiOf(sea);
@@ -509,12 +510,14 @@ function renderWeek(){
     infoHtml+htmlTopic(fs,ml,prevD?applyF(prevD.stores):null,sea)+
     htmlKPI(fs,ts,tc,sea,prevTs,prevOvr)+
     '<div class="g2">'+
-      '<div class="card"><div style="padding:12px 14px 10px"><div class="sec" style="margin-bottom:8px">注文率 週次推移（KPI '+KPI+'%）</div>'+makeChart(wkSeries,'rate',KPI)+'</div></div>'+
+      '<div class="card"><div style="padding:12px 14px 10px"><div class="sec" style="margin-bottom:8px">注文率 週次推移（KPI '+(hk?KPI+'%':'なし')+'）</div>'+makeChart(wkSeries,'rate',KPI)+'</div></div>'+
       '<div class="card"><div style="padding:12px 14px 10px"><div class="sec" style="margin-bottom:8px">販売数 週次推移</div>'+makeChart(sSeries,'sales',null)+'</div></div>'+
     '</div>'+
     '<div class="g-main">'+
-      '<div><div class="sec">店舗別 注文率ランキング</div>'+htmlRank(fs,prevD?applyF(prevD.stores):null,sea)+
-      '<div class="sec" style="margin-top:12px">メニュー別 販売数（降順）</div>'+htmlMenu(ml,ts)+'</div>'+
+      '<div>'+
+        '<div class="sec">店舗別 注文率ランキング</div>'+htmlRank(fs,prevD?applyF(prevD.stores):null,sea)+
+        '<div class="sec" style="margin-top:12px">メニュー別 販売数（降順）</div>'+htmlMenu(ml,ts)+
+      '</div>'+
       '<div><div class="sec">所属別 集計</div><div class="card">'+htmlSummary(fs,sea)+'</div></div>'+
     '</div>'+
     (ALL_WK.length>=2?'<div class="sec">週次トレンド</div>'+htmlTrend(wkSeries,sea):'');
@@ -666,7 +669,7 @@ function renderPresident(){
   }
   var sea=PRES_SEA,KPI=kpiOf(sea);
   var ps=sea.period[0].replace(/-/g,'/'),pe=sea.period[1].replace(/-/g,'/');
-  var presWks=ALL_WK.filter(function(wd){return wd.wk>=ps&&wd.wk<=pe&&wd.season.id===sea.id;});
+  var presWks=ALL_WK.filter(function(wd){return wd.season.id===sea.id;});
   if(!presWks.length){
     document.getElementById('tab-president').innerHTML='<div class="nodata-box" style="margin:40px auto"><h2>'+sea.emoji+' ぷれじでんとのデータがありません</h2><p>9月1日以降のCSVをアップロードしてください。</p></div>';
     return;
