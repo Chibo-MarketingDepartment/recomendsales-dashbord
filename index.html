@@ -289,6 +289,7 @@ var CUR_BIZ='basic';
 var MOS={"有楽町ビックカメラ支店":1,"舞 イクスピアリ店":1,"名代JO-TERRACE OSAKA店":1,"曽根崎支店":1};
 var SEASONS=[],ALL_WK=[],CW=null,F={area:'all',mo:'all'};
 var CUR_MON=null,CUR_SEA=null,DST=[],DMN=[];
+var CUR_WKS=[],CUR_DSEA=null,CUR_SCOPE_LABEL='';
 
 function getArea(n){if(!n)return 'その他';if(n.indexOf('FC')>=0)return 'FC';if(n.indexOf('第1')>=0)return '第1エリア';if(n.indexOf('第2')>=0)return '第2エリア';if(n.indexOf('第3')>=0)return '第3エリア';if(n.indexOf('第4')>=0)return '第4エリア';return 'その他';}
 function getMO(s){return MOS[s]?'MO':'POP';}
@@ -533,26 +534,30 @@ function htmlTrend(series,sea){
 
 function drillStore(idx){
   var store=DST[idx];if(!store)return;
-  var sea=curSea(),KPI=kpiOf(sea),sm={},cu=0;
-  ALL_WK.forEach(function(wd){var s=wd.stores.filter(function(x){return x.name===store;})[0];if(!s)return;cu+=s.cust;Object.keys(s.menus).forEach(function(mn){sm[mn]=(sm[mn]||0)+s.menus[mn];});});
+  var wks=(CUR_WKS&&CUR_WKS.length)?CUR_WKS:ALL_WK;
+  var sea=CUR_DSEA||curSea(),KPI=kpiOf(sea),sm={},cu=0;
+  wks.forEach(function(wd){var s=wd.stores.filter(function(x){return x.name===store;})[0];if(!s)return;cu+=s.cust;Object.keys(s.menus).forEach(function(mn){sm[mn]=(sm[mn]||0)+s.menus[mn];});});
   var items=Object.keys(sm).map(function(mn){return{name:mn,sales:sm[mn],rate:cu>0?sm[mn]/cu*100:0};}).sort(function(a,b){return b.rate-a.rate;});
   var mx=items.length?Math.max(items[0].rate,KPI*2):KPI*2,kp=KPI/mx*100;
   var rows=items.map(function(it){var ok=it.rate>=KPI,fc=ok?'var(--g1)':'var(--r1)',bw=Math.min(it.rate/mx*100,100);return '<div class="mrow" style="grid-template-columns:minmax(0,1fr) 130px 56px 44px"><div class="mnm">'+it.name+'</div><div class="mbw"><div class="mbt"><div class="mbf" style="width:'+bw+'%;background:'+fc+'"></div></div><div class="mkl" style="left:'+kp+'%"></div></div><div class="mrv" style="color:'+fc+'">'+it.rate.toFixed(2)+'%</div><div class="msv">'+it.sales+'食</div></div>';}).join('');
+  var lbl=CUR_SCOPE_LABEL||'累積';
   document.getElementById('d-icon').textContent='🏪';
-  document.getElementById('d-title').textContent=store+' — メニュー別注文率（累積）';
-  document.getElementById('d-body').innerHTML='<div class="minfo">総客数: '+cu.toLocaleString()+'名　KPI: '+KPI+'%</div><div class="mth" style="grid-template-columns:minmax(0,1fr) 130px 56px 44px"><span>メニュー名</span><span>注文率グラフ</span><span>注文率</span><span>販売数</span></div>'+rows;
+  document.getElementById('d-title').textContent=store+' — メニュー別注文率（'+lbl+'）';
+  document.getElementById('d-body').innerHTML='<div class="minfo">'+lbl+'　総客数: '+cu.toLocaleString()+'名　KPI: '+KPI+'%</div><div class="mth" style="grid-template-columns:minmax(0,1fr) 130px 56px 44px"><span>メニュー名</span><span>注文率グラフ</span><span>注文率</span><span>販売数</span></div>'+rows;
   document.getElementById('drill-ov').classList.add('on');
 }
 function drillMenu(idx){
   var mn=DMN[idx];if(!mn)return;
-  var sea=curSea(),KPI=kpiOf(sea),sm={};
-  ALL_WK.forEach(function(wd){wd.stores.forEach(function(s){if(!s.menus[mn])return;if(!sm[s.name])sm[s.name]={sales:0,cust:0,area:s.area};sm[s.name].sales+=s.menus[mn];sm[s.name].cust+=s.cust;});});
+  var wks=(CUR_WKS&&CUR_WKS.length)?CUR_WKS:ALL_WK;
+  var sea=CUR_DSEA||curSea(),KPI=kpiOf(sea),sm={};
+  wks.forEach(function(wd){wd.stores.forEach(function(s){if(!s.menus[mn])return;if(!sm[s.name])sm[s.name]={sales:0,cust:0,area:s.area};sm[s.name].sales+=s.menus[mn];sm[s.name].cust+=s.cust;});});
   var items=Object.keys(sm).map(function(sn){var d=sm[sn];return{name:sn,sales:d.sales,cust:d.cust,rate:d.cust>0?d.sales/d.cust*100:0,area:d.area};}).sort(function(a,b){return b.rate-a.rate;});
   var mx=items.length?Math.max(items[0].rate,KPI*2):KPI*2,kp=KPI/mx*100;
   var rows=items.map(function(it){var ok=it.rate>=KPI,fc=ok?'var(--g1)':'var(--r1)',bw=Math.min(it.rate/mx*100,100);return '<div class="mrow" style="grid-template-columns:minmax(0,1fr) 50px 130px 56px 44px"><div class="mnm">'+it.name+'</div><div style="font-size:8px;text-align:center;color:var(--n2)">'+it.area+'</div><div class="mbw"><div class="mbt"><div class="mbf" style="width:'+bw+'%;background:'+fc+'"></div></div><div class="mkl" style="left:'+kp+'%"></div></div><div class="mrv" style="color:'+fc+'">'+it.rate.toFixed(2)+'%</div><div class="msv">'+it.sales+'食</div></div>';}).join('');
+  var lbl=CUR_SCOPE_LABEL||'累積';
   document.getElementById('d-icon').textContent='🍽';
-  document.getElementById('d-title').textContent=mn+' — 店舗別注文率（累積）';
-  document.getElementById('d-body').innerHTML='<div class="minfo">全'+ALL_WK.length+'週累積　KPI: '+KPI+'%</div><div class="mth" style="grid-template-columns:minmax(0,1fr) 50px 130px 56px 44px"><span>店舗名</span><span>所属</span><span>注文率グラフ</span><span>注文率</span><span>販売数</span></div>'+rows;
+  document.getElementById('d-title').textContent=mn+' — 店舗別注文率（'+lbl+'）';
+  document.getElementById('d-body').innerHTML='<div class="minfo">'+lbl+'　KPI: '+KPI+'%</div><div class="mth" style="grid-template-columns:minmax(0,1fr) 50px 130px 56px 44px"><span>店舗名</span><span>所属</span><span>注文率グラフ</span><span>注文率</span><span>販売数</span></div>'+rows;
   document.getElementById('drill-ov').classList.add('on');
 }
 function bindDrill(pid){var p=document.getElementById(pid);if(!p)return;p.addEventListener('click',function(e){var si=e.target.getAttribute('data-si');if(si!==null){drillStore(parseInt(si));return;}var mi=e.target.getAttribute('data-mi');if(mi!==null){drillMenu(parseInt(mi));return;}});}
@@ -567,10 +572,11 @@ function renderWeek(){
   var fs,ml,ts,tc,prevTs=null,prevOvr=null;
   if(isCum){
     var sM={},smC={};
-    basicWks.forEach(function(wd){applyF(wd.stores).forEach(function(s){if(!sM[s.name])sM[s.name]={area:s.area,mo:s.mo,sales:0,cust:0,menus:{}};sM[s.name].sales+=s.sales;sM[s.name].cust+=s.cust;Object.keys(s.menus).forEach(function(m){sM[s.name].menus[m]=(sM[s.name].menus[m]||0)+s.menus[m];});if(!smC[s.name])smC[s.name]={};Object.keys(s.menus).forEach(function(m){smC[s.name][m]=(smC[s.name][m]||0)+s.menus[m];});});});
+    _bwks.forEach(function(wd){applyF(wd.stores).forEach(function(s){if(!sM[s.name])sM[s.name]={area:s.area,mo:s.mo,sales:0,cust:0,menus:{}};sM[s.name].sales+=s.sales;sM[s.name].cust+=s.cust;Object.keys(s.menus).forEach(function(m){sM[s.name].menus[m]=(sM[s.name].menus[m]||0)+s.menus[m];});if(!smC[s.name])smC[s.name]={};Object.keys(s.menus).forEach(function(m){smC[s.name][m]=(smC[s.name][m]||0)+s.menus[m];});});});
     var cumSt=Object.keys(sM).map(function(n){var s=sM[n];s.name=n;s.rate=s.cust>0?s.sales/s.cust*100:0;return s;}).sort(function(a,b){return b.rate-a.rate;});
     fs=cumSt;ml=aggMenu(fs,smC);ts=0;tc=0;fs.forEach(function(s){ts+=s.sales;tc+=s.cust;});
   }else{var sw=wkSum(d);fs=sw.fs;ml=sw.ml;ts=sw.ts;tc=sw.tc;if(prevD){var ps=wkSum(prevD);prevTs=ps.ts;prevOvr=ps.ovr;}}
+  CUR_WKS=isCum?getBasicWks():[d];CUR_DSEA=sea;CUR_SCOPE_LABEL=isCum?'累積（全期間）':(d.wl+'（週次）');
   var hk=hasKPI(sea),KPI=kpiOf(sea);
   var basicWks=getBasicWks();
   var wkSeries=basicWks.map(function(wd,i){var ws=wkSum(wd);return{lbl:(i+1)+'W',val:ws.ovr,ovr:ws.ovr,ts:ws.ts,tc:ws.tc,wl:wd.wl};});
@@ -602,20 +608,22 @@ function renderMonth(){
   if(!monList.length){document.getElementById('tab-month').innerHTML='<div style="padding:40px;text-align:center;color:var(--n3)">データがありません</div>';return;}
   if(!CUR_MON||monList.indexOf(CUR_MON)<0)CUR_MON=monList[monList.length-1];
   function buildMon(mk){
-    var mm=monSet[mk],wkList=[],sM={},smC={};
+    var mm=monSet[mk],wkList=[],wkObjs=[],sM={},smC={};
     ALL_WK.filter(function(wd){return wd.mon===mm.mon&&wd.year===mm.year;}).forEach(function(wd){
+      wkObjs.push(wd);
       var fs=applyF(wd.stores),wts=0,wtc=0;
       fs.forEach(function(s){wts+=s.sales;wtc+=s.cust;if(!sM[s.name])sM[s.name]={area:s.area,mo:s.mo,sales:0,cust:0};sM[s.name].sales+=s.sales;sM[s.name].cust+=s.cust;if(!smC[s.name])smC[s.name]={};Object.keys(s.menus||{}).forEach(function(mn){smC[s.name][mn]=(smC[s.name][mn]||0)+s.menus[mn];});});
       wkList.push({wl:wd.wl,ovr:wtc>0?wts/wtc*100:0,ts:wts,tc:wtc});
     });
     var stores=Object.keys(sM).map(function(n){var s=sM[n];s.name=n;s.rate=s.cust>0?s.sales/s.cust*100:0;return s;});
     var ts2=stores.reduce(function(a,s){return a+s.sales;},0),tc2=stores.reduce(function(a,s){return a+s.cust;},0);
-    return{wkList:wkList,stores:stores.sort(function(a,b){return b.rate-a.rate;}),ml:aggMenu(stores,smC),ts:ts2,tc:tc2,ovr:tc2>0?ts2/tc2*100:0,sea:mm.sea};
+    return{wkList:wkList,wkObjs:wkObjs,stores:stores.sort(function(a,b){return b.rate-a.rate;}),ml:aggMenu(stores,smC),ts:ts2,tc:tc2,ovr:tc2>0?ts2/tc2*100:0,sea:mm.sea};
   }
   function renderMonContent(){
     var d=buildMon(CUR_MON),sea=d.sea,KPI=kpiOf(sea),ovr=d.ovr,ok=ovr>=KPI,okw=d.wkList.filter(function(w){return w.ovr>=KPI;}).length;
     var mSeries=d.wkList.map(function(w,i){return{lbl:(i+1)+'W',val:w.ovr,ovr:w.ovr,ts:w.ts,tc:w.tc,wl:w.wl};});
     var sSeries=d.wkList.map(function(w,i){return{lbl:(i+1)+'W',val:w.ts};});
+    CUR_WKS=d.wkObjs;CUR_DSEA=sea;CUR_SCOPE_LABEL=monSet[CUR_MON].label+'（月次）';
     document.getElementById('mon-content').innerHTML=
       '<div class="mon-kpis">'+
         '<div class="mkpi"><div class="mkpi-l">注文率</div><div class="mkpi-v" style="color:'+(ok?'var(--g1)':'var(--r1)')+'">'+ovr.toFixed(2)+'<span class="mkpi-u">%</span></div></div>'+
@@ -655,6 +663,7 @@ function renderSeason(){
     var ml=aggMenu(stores,smC),ovr=tc2>0?ts2/tc2*100:0,ok=ovr>=KPI;
     var wkSeries=seaWks.map(function(wd,i){var fs=applyF(wd.stores),wts=0,wtc=0;fs.forEach(function(s){wts+=s.sales;wtc+=s.cust;});var ov=wtc>0?wts/wtc*100:0;return{lbl:(i+1)+'W',val:ov,ovr:ov,ts:wts,tc:wtc,wl:wd.wl};});
     var sSeries=seaWks.map(function(wd,i){var fs=applyF(wd.stores),wts=0;fs.forEach(function(s){wts+=s.sales;});return{lbl:(i+1)+'W',val:wts};});
+    CUR_WKS=seaWks;CUR_DSEA=sea;CUR_SCOPE_LABEL=sea.emoji+' '+sea.name+'（季節累計）';
     document.getElementById('sea-content').innerHTML=
       '<div class="info-bar">'+sea.emoji+' '+sea.name+'　'+sea.period[0]+' 〜 '+sea.period[1]+'　KPI: '+KPI+'%</div>'+
       '<div class="kpi-grid">'+
@@ -807,7 +816,7 @@ function renderPresWeek(){
     document.getElementById('tab-pweek').innerHTML='<div class="nodata-box" style="margin:40px auto"><h2>🏛 データがありません</h2><p>9月1日以降のCSVをアップロードしてください。</p></div>';
     return;
   }
-  if(!PCW||PCW==='__cum'||(presWks.findIndex(function(w){return w.wk===PCW;}))<0){
+  if(!PCW||(PCW!=='__cum'&&(presWks.findIndex(function(w){return w.wk===PCW;}))<0)){
     PCW=presWks[presWks.length-1].wk;
   }
   var isCum=PCW==='__cum';
@@ -837,6 +846,7 @@ function renderPresWeek(){
   var wkSeries=presWks.map(function(wd,i){var ws=presWkSum(wd);return{lbl:(i+1)+'W',val:ws.ovr,ovr:ws.ovr,ts:ws.ts,tc:ws.tc,wl:wd.wl};});
   var sSeries=presWks.map(function(wd,i){var ws=presWkSum(wd);return{lbl:(i+1)+'W',val:ws.ts};});
   var infoHtml=isCum?'<div class="info-bar">累積表示（全'+presWks.length+'週）</div>':'';
+  CUR_WKS=isCum?presWks:[d];CUR_DSEA=sea;CUR_SCOPE_LABEL=isCum?'累積（全期間）':(d.wl+'（週次）');
 
   // 店舗別詳細（対象5店全表示）
   var targetStores=sea&&sea.stores?sea.stores:[];
@@ -882,20 +892,22 @@ function renderPresMonth(){
   if(!monList.length){document.getElementById('tab-pmonth').innerHTML='<div style="padding:40px;text-align:center;color:var(--n3)">データがありません</div>';return;}
   if(!PCUR_MON||monList.indexOf(PCUR_MON)<0)PCUR_MON=monList[monList.length-1];
   function buildMon(mk){
-    var mm=monSet[mk],wkList=[],sM={},smC={};
+    var mm=monSet[mk],wkList=[],wkObjs=[],sM={},smC={};
     presWks.filter(function(wd){return wd.mon===mm.mon&&wd.year===mm.year;}).forEach(function(wd){
+      wkObjs.push(wd);
       var wts=0,wtc=0;
       wd.stores.forEach(function(s){wts+=s.sales;wtc+=s.cust;if(!sM[s.name])sM[s.name]={area:s.area,mo:s.mo,sales:0,cust:0};sM[s.name].sales+=s.sales;sM[s.name].cust+=s.cust;if(!smC[s.name])smC[s.name]={};Object.keys(s.menus||{}).forEach(function(mn){smC[s.name][mn]=(smC[s.name][mn]||0)+s.menus[mn];});});
       wkList.push({wl:wd.wl,ovr:wtc>0?wts/wtc*100:0,ts:wts,tc:wtc});
     });
     var stores=Object.keys(sM).map(function(n){var s=sM[n];s.name=n;s.rate=s.cust>0?s.sales/s.cust*100:0;return s;});
     var ts2=stores.reduce(function(a,s){return a+s.sales;},0),tc2=stores.reduce(function(a,s){return a+s.cust;},0);
-    return{wkList:wkList,stores:stores.sort(function(a,b){return b.rate-a.rate;}),ml:aggMenu(stores,smC),ts:ts2,tc:tc2,ovr:tc2>0?ts2/tc2*100:0,sea:mm.sea};
+    return{wkList:wkList,wkObjs:wkObjs,stores:stores.sort(function(a,b){return b.rate-a.rate;}),ml:aggMenu(stores,smC),ts:ts2,tc:tc2,ovr:tc2>0?ts2/tc2*100:0,sea:mm.sea};
   }
   function renderMonContent(){
     var d=buildMon(PCUR_MON),sea=d.sea,KPI=kpiOf(sea),ovr=d.ovr,okw=d.wkList.filter(function(w){return KPI!=null&&w.ovr>=KPI;}).length;
     var mSeries=d.wkList.map(function(w,i){return{lbl:(i+1)+'W',val:w.ovr,ovr:w.ovr,ts:w.ts,tc:w.tc,wl:w.wl};});
     var sSeries=d.wkList.map(function(w,i){return{lbl:(i+1)+'W',val:w.ts};});
+    CUR_WKS=d.wkObjs;CUR_DSEA=sea;CUR_SCOPE_LABEL=monSet[PCUR_MON].label+'（月次）';
     document.getElementById('pmon-content').innerHTML=
       '<div class="mon-kpis">'+
         '<div class="mkpi"><div class="mkpi-l">注文率</div><div class="mkpi-v" style="color:var(--c2)">'+ovr.toFixed(2)+'<span class="mkpi-u">%</span></div></div>'+
@@ -932,6 +944,7 @@ function renderPresSeason(){
     var ml=aggMenu(stores,smC),ovr=tc2>0?ts2/tc2*100:0;
     var wkSeries=presWks.map(function(wd,i){var wts=0,wtc=0;wd.stores.forEach(function(s){wts+=s.sales;wtc+=s.cust;});var ov=wtc>0?wts/wtc*100:0;return{lbl:(i+1)+'W',val:ov,ovr:ov,ts:wts,tc:wtc,wl:wd.wl};});
     var sSeries=presWks.map(function(wd,i){var wts=0;wd.stores.forEach(function(s){wts+=s.sales;});return{lbl:(i+1)+'W',val:wts};});
+    CUR_WKS=presWks;CUR_DSEA=sea;CUR_SCOPE_LABEL=sea.emoji+' '+sea.name+'（季節累計）';
     var mnNames=sea.menus?sea.menus.map(function(m){return m.disp;}):[...new Set(ml.map(function(m){return m.name;}))];
     var storeRows=(sea.stores||stores.map(function(s){return s.name;})).map(function(sn){
       var sd=sM[sn]||{sales:0,cust:0,menus:{}};
