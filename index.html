@@ -323,7 +323,18 @@ function listFiles(path){
                   .map(function(f){return{name:f.name,url:f.download_url};});
     });
 }
-function normMenu(nm,sea){nm=nm.trim();var f=sea.menus.filter(function(m){return nm.indexOf(m.raw)>=0;});return f.length?f[0].disp:null;}
+/* メニュー照合: raw部分一致が基本。exact:true=完全一致、prices=売価限定、period=[開始,終了]日付限定、stores=店舗限定（いずれも任意） */
+function normMenu(nm,sea,store,date,price){
+  nm=nm.trim();
+  var f=sea.menus.filter(function(m){
+    if(m.exact?nm!==m.raw:nm.indexOf(m.raw)<0)return false;
+    if(m.prices&&price!==undefined&&m.prices.indexOf(String(price).trim())<0)return false;
+    if(m.period&&date&&(date<m.period[0].replace(/-/g,'/')||date>m.period[1].replace(/-/g,'/')))return false;
+    if(m.stores&&store&&m.stores.indexOf(store)<0)return false;
+    return true;
+  });
+  return f.length?f[0].disp:null;
+}
 
 /* 全CSV全行を1回スキャンしてrawマップを作成 */
 function parseAllSalesRaw(texts){
@@ -333,7 +344,7 @@ function parseAllSalesRaw(texts){
     for(var i=1;i<rows.length;i++){
       var c=rows[i];if(c.length<21||!c[0].trim())continue;
       var an=c[6].trim();if(!isTarget(an))continue;
-      var store=c[10].trim(),date=c[0].trim(),mn=c[17].trim(),youbi=c[2].trim();
+      var store=c[10].trim(),date=c[0].trim(),mn=c[17].trim()+'\t'+(c[18]||'').trim(),youbi=c[2].trim();
       var area=getArea(an),mo=getMO(store),sales=parseFloat(c[20])||0;
       if(!sales)continue;
       var key=store+'|'+date;
@@ -356,7 +367,8 @@ function filterSalesForSeason(rawMap,sea){
     // メニュー名正規化
     var filteredMenus={};
     Object.keys(sd.menus).forEach(function(mn){
-      var nm=normMenu(mn,sea);
+      var mp=mn.split('\t');
+      var nm=normMenu(mp[0],sea,sd.store,sd.date,mp[1]);
       if(!nm)return;
       filteredMenus[nm]=(filteredMenus[nm]||0)+sd.menus[mn];
     });
@@ -858,7 +870,7 @@ function renderPresWeek(){
       Object.keys(s.menus).forEach(function(mn){storeMap[s.name].menus[mn]=(storeMap[s.name].menus[mn]||0)+s.menus[mn];});
     });
   });
-  var mnNames=sea&&sea.menus?sea.menus.map(function(m){return m.disp;}):[...new Set(ml.map(function(m){return m.name;}))];
+  var mnNames=sea&&sea.menus?[...new Set(sea.menus.map(function(m){return m.disp;}))]:[...new Set(ml.map(function(m){return m.name;}))];
   var storeRows=targetStores.map(function(sn){
     var sd=storeMap[sn]||{sales:0,cust:0,menus:{}};
     var rate=sd.cust>0?sd.sales/sd.cust*100:0;
@@ -945,7 +957,7 @@ function renderPresSeason(){
     var wkSeries=presWks.map(function(wd,i){var wts=0,wtc=0;wd.stores.forEach(function(s){wts+=s.sales;wtc+=s.cust;});var ov=wtc>0?wts/wtc*100:0;return{lbl:(i+1)+'W',val:ov,ovr:ov,ts:wts,tc:wtc,wl:wd.wl};});
     var sSeries=presWks.map(function(wd,i){var wts=0;wd.stores.forEach(function(s){wts+=s.sales;});return{lbl:(i+1)+'W',val:wts};});
     CUR_WKS=presWks;CUR_DSEA=sea;CUR_SCOPE_LABEL=sea.emoji+' '+sea.name+'（季節累計）';
-    var mnNames=sea.menus?sea.menus.map(function(m){return m.disp;}):[...new Set(ml.map(function(m){return m.name;}))];
+    var mnNames=sea.menus?[...new Set(sea.menus.map(function(m){return m.disp;}))]:[...new Set(ml.map(function(m){return m.name;}))];
     var storeRows=(sea.stores||stores.map(function(s){return s.name;})).map(function(sn){
       var sd=sM[sn]||{sales:0,cust:0,menus:{}};
       var rate=sd.cust>0?sd.sales/sd.cust*100:0;
