@@ -815,6 +815,28 @@ function updatePresWkDD(){
   if(btn) btn.innerHTML=label+' <span class="ddarrow">▼</span>';
 }
 
+/* ぷれじでんと店舗別表の列定義: groupを持つメニュー(コース内訳等)は1列にまとめ、セルに内訳を併記 */
+function presCols(sea,ml){
+  var cols=[],gi={};
+  if(!(sea&&sea.menus)){return [...new Set(ml.map(function(m){return m.name;}))].map(function(n){return{label:n,parts:[{disp:n}],group:false};});}
+  sea.menus.forEach(function(m){
+    if(m.group){
+      if(gi[m.group]===undefined){gi[m.group]=cols.length;cols.push({label:m.group,parts:[],group:true});}
+      var c=cols[gi[m.group]];
+      if(!c.parts.some(function(p){return p.disp===m.disp;}))c.parts.push({disp:m.disp,short:m.short||m.disp});
+    }else if(!cols.some(function(c){return !c.group&&c.label===m.disp;})){
+      cols.push({label:m.disp,parts:[{disp:m.disp}],group:false});
+    }
+  });
+  return cols;
+}
+function presCell(menus,col){
+  var tot=0,det=[];
+  col.parts.forEach(function(p){var v=(menus&&menus[p.disp])||0;tot+=v;if(col.group)det.push(p.short+' '+v);});
+  var sub=(col.group&&tot>0)?'<div style="font-size:9px;font-weight:400;color:var(--n3);white-space:nowrap">'+det.join('／')+'</div>':'';
+  return '<td style="text-align:right;font-size:10px">'+(tot>0?tot+'食':'-')+sub+'</td>';
+}
+function presHead(cols){return cols.map(function(c){return '<th>'+c.label+'</th>';}).join('');}
 function presWkSum(wd){
   var fs=wd.stores; // ぷれじでんとはフィルタなし
   var ml=aggMenu(fs,wd.smMap);
@@ -863,21 +885,21 @@ function renderPresWeek(){
   // 店舗別詳細（対象5店全表示）
   var targetStores=sea&&sea.stores?sea.stores:[];
   var storeMap={};
-  presWks.forEach(function(wd){
+  CUR_WKS.forEach(function(wd){
     wd.stores.forEach(function(s){
       if(!storeMap[s.name])storeMap[s.name]={sales:0,cust:0,menus:{}};
       storeMap[s.name].sales+=s.sales;storeMap[s.name].cust+=s.cust;
       Object.keys(s.menus).forEach(function(mn){storeMap[s.name].menus[mn]=(storeMap[s.name].menus[mn]||0)+s.menus[mn];});
     });
   });
-  var mnNames=sea&&sea.menus?[...new Set(sea.menus.map(function(m){return m.disp;}))]:[...new Set(ml.map(function(m){return m.name;}))];
+  var cols=presCols(sea,ml);
   var storeRows=targetStores.map(function(sn){
     var sd=storeMap[sn]||{sales:0,cust:0,menus:{}};
     var rate=sd.cust>0?sd.sales/sd.cust*100:0;
-    var mnCells=mnNames.map(function(mn){var s=sd.menus[mn]||0;return '<td style="text-align:right;font-size:10px">'+(s>0?s+'食':'-')+'</td>';}).join('');
+    var mnCells=cols.map(function(c){return presCell(sd.menus,c);}).join('');
     return '<tr><td style="font-weight:700;font-size:10px">'+sn+'</td><td style="text-align:right;font-size:10px">'+sd.cust+'名</td>'+mnCells+'<td style="text-align:right;font-weight:700;color:var(--c2)">'+rate.toFixed(2)+'%</td></tr>';
   }).join('');
-  var mnHeaders=mnNames.map(function(mn){return '<th>'+mn+'</th>';}).join('');
+  var mnHeaders=presHead(cols);
 
   document.getElementById('tab-pweek').innerHTML=
     infoHtml+
@@ -957,14 +979,14 @@ function renderPresSeason(){
     var wkSeries=presWks.map(function(wd,i){var wts=0,wtc=0;wd.stores.forEach(function(s){wts+=s.sales;wtc+=s.cust;});var ov=wtc>0?wts/wtc*100:0;return{lbl:(i+1)+'W',val:ov,ovr:ov,ts:wts,tc:wtc,wl:wd.wl};});
     var sSeries=presWks.map(function(wd,i){var wts=0;wd.stores.forEach(function(s){wts+=s.sales;});return{lbl:(i+1)+'W',val:wts};});
     CUR_WKS=presWks;CUR_DSEA=sea;CUR_SCOPE_LABEL=sea.emoji+' '+sea.name+'（季節累計）';
-    var mnNames=sea.menus?[...new Set(sea.menus.map(function(m){return m.disp;}))]:[...new Set(ml.map(function(m){return m.name;}))];
+    var cols=presCols(sea,ml);
     var storeRows=(sea.stores||stores.map(function(s){return s.name;})).map(function(sn){
       var sd=sM[sn]||{sales:0,cust:0,menus:{}};
       var rate=sd.cust>0?sd.sales/sd.cust*100:0;
-      var mnCells=mnNames.map(function(mn){var s2=sd.menus?sd.menus[mn]||0:0;return '<td style="text-align:right;font-size:10px">'+(s2>0?s2+'食':'-')+'</td>';}).join('');
+      var mnCells=cols.map(function(c){return presCell(smC[sn],c);}).join('');
       return '<tr><td style="font-weight:700;font-size:10px">'+sn+'</td><td style="text-align:right;font-size:10px">'+sd.cust+'名</td>'+mnCells+'<td style="text-align:right;font-weight:700;color:var(--c2)">'+rate.toFixed(2)+'%</td></tr>';
     }).join('');
-    var mnHeaders=mnNames.map(function(mn){return '<th>'+mn+'</th>';}).join('');
+    var mnHeaders=presHead(cols);
     document.getElementById('psea-content').innerHTML=
       '<div class="info-bar">'+sea.emoji+' '+sea.name+'　'+sea.period[0]+' 〜 '+sea.period[1]+'</div>'+
       '<div class="kpi-grid">'+
