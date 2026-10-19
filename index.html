@@ -339,10 +339,17 @@ function normMenu(nm,sea,store,date,price){
 /* 全CSV全行を1回スキャンしてrawマップを作成 */
 function parseAllSalesRaw(texts){
   var raw={}; // key=store|date → {store,area,mo,date,youbi,menus:{mn:sales}}
-  texts.forEach(function(text){
+  /* 期間が重なるCSVは、同じ営業日について最後(最新)のファイルの行のみ採用し二重計上を防ぐ */
+  var lastIdx={};
+  texts.forEach(function(text,ti){
+    var lines=text.split('\n');
+    for(var li=1;li<lines.length;li++){var k=lines[li].indexOf(',');if(k<1)continue;lastIdx[lines[li].slice(0,k).replace(/"/g,'').trim()]=ti;}
+  });
+  texts.forEach(function(text,ti){
     var rows=parseCSV(text);
     for(var i=1;i<rows.length;i++){
       var c=rows[i];if(c.length<21||!c[0].trim())continue;
+      if(lastIdx[c[0].trim()]!==ti)continue;
       var an=c[6].trim();if(!isTarget(an))continue;
       var store=c[10].trim(),date=c[0].trim(),mn=c[17].trim()+'\t'+(c[18]||'').trim(),youbi=c[2].trim();
       var area=getArea(an),mo=getMO(store),sales=parseFloat(c[20])||0;
