@@ -456,7 +456,7 @@ function aggMenu(fs,smMap){var mm={};fs.forEach(function(s){var sm=smMap[s.name]
 function aggByKey(fs,key){var map={};fs.forEach(function(s){var k=s[key];if(!map[k])map[k]={name:k,sales:0,cust:0,cnt:0};map[k].sales+=s.sales;map[k].cust+=s.cust;map[k].cnt++;});return Object.values(map).map(function(d){d.rate=d.cust>0?d.sales/d.cust*100:0;return d;}).sort(function(a,b){return b.rate-a.rate;});}
 
 function makeChart(series,metric,kpi){
-  if(!series||series.length<2)return '<div style="text-align:center;padding:40px;color:var(--n3);font-size:12px">2データ以上で表示</div>';
+  if(!series||series.length<1)return '<div style="text-align:center;padding:40px;color:var(--n3);font-size:12px">データがありません</div>';
   var vals=series.map(function(w){return w.val;}),maxV=Math.max.apply(null,vals),minV=Math.min.apply(null,vals);
   var yMax,yMin,pad;
   if(kpi){var dMax=Math.max(maxV,kpi),dMin=Math.min(minV,kpi);pad=(dMax-dMin)*0.25||dMax*0.1||0.5;yMin=Math.max(0,dMin-pad);yMax=dMax+pad;}
@@ -470,8 +470,8 @@ function makeChart(series,metric,kpi){
   var grids=[0.25,0.5,0.75].map(function(r){var gy=(pT+cH-r*cH).toFixed(1),gv=yMin+r*range,gl=metric==='rate'?gv.toFixed(1)+'%':Math.round(gv).toLocaleString();return '<line x1="'+pL+'" y1="'+gy+'" x2="'+(pL+cW)+'" y2="'+gy+'" stroke="#e2e8f0" stroke-width="1"/><text x="'+(pL-3)+'" y="'+(parseFloat(gy)+3.5)+'" text-anchor="end" font-size="8" fill="#94a3b8">'+gl+'</text>';}).join('');
   var kpiSvg='';if(kpi){var ky=yp(kpi).toFixed(1);kpiSvg='<line x1="'+pL+'" y1="'+ky+'" x2="'+(pL+cW)+'" y2="'+ky+'" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5,4"/><text x="'+(pL+cW+2)+'" y="'+(parseFloat(ky)+3.5)+'" font-size="8" fill="#dc2626">KPI</text>';}
   var axes='<line x1="'+pL+'" y1="'+pT+'" x2="'+pL+'" y2="'+(pT+cH)+'" stroke="#e2e8f0" stroke-width="1"/><line x1="'+pL+'" y1="'+(pT+cH)+'" x2="'+(pL+cW)+'" y2="'+(pT+cH)+'" stroke="#e2e8f0" stroke-width="1"/>';
-  var dots=pts.map(function(p,i){var ok=kpi?p.val>=kpi:true,col=ok?'#059669':'#dc2626',vs=metric==='rate'?p.val.toFixed(2)+'%':p.val.toLocaleString(),anchor=i===0?'start':i===n-1?'end':'middle';return '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="5" fill="'+col+'" stroke="#fff" stroke-width="2"/><text x="'+p.x.toFixed(1)+'" y="'+(p.y-9).toFixed(1)+'" text-anchor="'+anchor+'" font-size="10" font-weight="700" fill="'+col+'">'+vs+'</text><text x="'+p.x.toFixed(1)+'" y="'+(pT+cH+14)+'" text-anchor="middle" font-size="9" fill="#64748b">'+p.lbl+'</text>';}).join('');
-  return '<svg viewBox="0 0 '+VW+' '+VH+'" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block">'+grids+axes+kpiSvg+'<path d="'+areaD+'" fill="rgba(37,99,235,.08)"/><path d="'+pathD+'" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>'+dots+'</svg>';
+  var dots=pts.map(function(p,i){var ok=kpi?p.val>=kpi:true,col=ok?'#059669':'#dc2626',vs=metric==='rate'?p.val.toFixed(2)+'%':p.val.toLocaleString(),anchor=n===1?'middle':i===0?'start':i===n-1?'end':'middle';return '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="5" fill="'+col+'" stroke="#fff" stroke-width="2"/><text x="'+p.x.toFixed(1)+'" y="'+(p.y-9).toFixed(1)+'" text-anchor="'+anchor+'" font-size="10" font-weight="700" fill="'+col+'">'+vs+'</text><text x="'+p.x.toFixed(1)+'" y="'+(pT+cH+14)+'" text-anchor="middle" font-size="9" fill="#64748b">'+p.lbl+'</text>';}).join('');
+  return (n===1?'<div style="font-size:11px;color:var(--n3);margin-bottom:4px">この月は1週分のみです（週が増えると推移線が表示されます）</div>':'')+'<svg viewBox="0 0 '+VW+' '+VH+'" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block">'+grids+axes+kpiSvg+'<path d="'+areaD+'" fill="rgba(37,99,235,.08)"/><path d="'+pathD+'" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>'+dots+'</svg>';
 }
 
 function htmlKPI(fs,ts,tc,sea,prevTs,prevOvr){
